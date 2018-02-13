@@ -1,0 +1,26 @@
+#!/bin/bash
+#	Created by Mark Mon Monteros 
+#	*** Messages Fix Script ***
+
+echo # Created by Mark Mon Monteros - WAH IT #
+
+echo 'Enter your local password: "concentrix"'
+killall Messages > /dev/null 2>&1
+sudo rm -rf /Library/Preferences/com.apple.iChat*
+sudo rm -rf /Library/Preferences/com.apple.imessage*
+sudo rm -rf ~/Library/Preferences/com.apple.iChat*
+sudo rm -rf ~/Library/Containers/com.apple.iChat*
+sudo rm -rf /Library/Containers/com.apple.iChat*
+sudo rm -rf ~/Library/Preferences/com.apple.imessage*
+sudo rm -rf ~/Library/Preferences/com.apple.imservice.iMessage.plist
+sudo rm -rf /Library/Preferences/com.apple.imservice.iMessage.plist
+sudo rm -rf ~/Library/Preferences/com.apple.imservice.ids.iMessage.plist
+sudo rm -rf /Library/Preferences/com.apple.imservice.ids.iMessage.plist
+sudo rm -rf ~/Library/Preferences/com.apple.ichat.plist
+sudo rm -rf /Library/Preferences/com.apple.ichat.plist
+sudo rm -rf ~/Library/Preferences/com.apple.imagent.plist
+sudo rm -rf /Library/Preferences/com.apple.imagent.plist
+sudo rm -rf ~/dscache
+sudo rm -rf /Library/Messages/*
+sudo rm -rf ~/Library/Messages/*
+killall Finder

@@ -1,0 +1,152 @@
+#!/bin/bash
+#Created by Mark Mon Monteros
+#	*** User Account Fix Script ***
+
+echo "*** User Account Fix Script ***"
+echo "Note: Use this script with CAUTION! Please don't run this if there aren't any user account issues..."
+echo
+echo Before proceeding.. Make sure you are logged in to an administrator user account: 'admin', 'localadmin', '_casper'
+echo Or you can use the terminal command: login
+echo                         
+echo 'Enter your local password: "concentrix"'
+
+rm -rf /tmp/*.txt > /dev/null 2>&1
+#GET ACCOUNT NAME + NFSHOMEDIR
+dscl . -list /Users NFSHomeDirectory | grep ./Users | grep -v ./observe$ | grep -v ./admin$ | grep -v ./localadmin$ | grep -v ./cnxadmin$ | grep -v ./a$ | grep -v ./Shared$ > /tmp/accList.txt
+declare -a accList=(`cat /tmp/accList.txt`)
+#GET USER PATH
+ls -l /Users | awk {'print$5 " " $9'} | sed -n '1!p' | sort -n | awk '{print$2}' | grep -v ^a$ | grep -v ^localadmin$ | grep -v ^cnxadmin$ | grep -v ^admin$ | grep -v ^Shared$ > /tmp/userList.txt
+declare -a userList=(`cat /tmp/userList.txt`)
+
+#COUNT NUMBER OF ACCOUNTS
+countAcc=$(cat /tmp/accList.txt | wc -l)
+
+for (( i=0; i<=($countAcc*2)-1; i=i+2 )); do
+    if [[ i -eq 0 ]]; then
+    dscl . -read /Users/`echo ${accList[$i]}` | tail -f | grep : | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | awk '{print$2}' > /tmp/accList.txt
+    else
+    dscl . -read /Users/`echo ${accList[$i]}` | tail -f | grep : | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | awk '{print$2}' >> /tmp/accList.txt
+    fi
+done
+
+declare -a accList=(`cat /tmp/accList.txt`)
+
+#Remove True Account in List
+elemCount=$(echo ${#userList[*]})
+rmelem=$(echo $elemCount | awk '{print$1-1}')
+declare -a delUsers=(${userList[*]:0:$rmelem} ${userList[*]:$(expr $rmelem + 1)})
+
+#get True Account
+echo ${userList[$rmelem]} > /tmp/getTrueP.txt
+declare -a getTrueP=(`cat /tmp/getTrueP.txt`)
+
+
+#Matching
+countUser=$(cat /tmp/userList.txt | wc -l)
+declare -a trimNFS=(`cat /tmp/accList.txt | grep /Users | cut -d / -f3`)
+
+for (( i=0; i<=$countUser; i++ )); do
+    if [[ "${getTrueP[*]}" =~ "${trimNFS[$i]}" ]]; then
+        echo "True Account Found:"
+        echo "${trimNFS[$i]}"
+        getTrueElem=$i
+    fi   
+done
+
+declare -a delAccounts=(${trimNFS[*]:0:$getTrueElem} ${trimNFS[*]:$(expr $getTrueElem + 1)})
+
+#DELETE ALL ELEMENTS IN ARRAYS
+#delUsers -- /Users folder path
+echo             
+echo Removing Other Users Home Folder Paths...
+cntdelUsers=$(echo ${#delUsers[*]})
+for (( i=0; i<=$cntdelUsers-1; i++ )); do
+    echo sudo rm -rf /Users/"${delUsers[$i]}"
+    #sudo rm -rf /Users/"${delUsers[$i]}"
+done
+
+#delAccounts -- Accounts
+echo               
+echo Removing Other User Accounts...
+cntdelAccounts=$(echo ${#delAccounts[*]})
+for (( i=0; i<=$cntdelAccounts-1; i++ )); do
+    echo sudo dscl . -delete /Users/"${delAccounts[$i]}"
+    #sudo dscl . -delete /Users/"${delAccounts[$i]}"
+done
+
+#getTrue Account Details
+echo           
+matchTrue=$(echo "/Users/${getTrueP[*]}")
+countT=$(echo ${#accList[$i]})
+
+for (( i=0; i<=$countT; i++ )); do
+    if [[ "$matchTrue" =~ "${accList[$i]}" ]]; then
+        echo "Real Name Found:"
+        echo "${accList[$i+1]}"
+        getRN=(`echo ${accList[$i+1]}`)
+        echo "Record Name Found:"
+        echo "${accList[$i+2]}"
+        getRec=(`echo ${accList[$i+2]}`)
+        echo "NFS Home Directory Found:"
+        echo "${accList[$i]}"
+        getNFS=(`echo ${accList[$i]}`)
+    fi   
+done
+
+echo            
+echo Migrating "${getTrueP[*]}" Account to WorkAtHomeAgent Account
+echo dscl . -change /Users/"$getRN" RealName "$getRN" "WorkAtHomeAgent"
+echo dscl . -change /Users/"$getRN" RecordName "$getRec" workathomeagent
+echo dscl . -change /Users/"$getRN" NFSHomeDirectory "$getNFS" /Users/workathomeagent
+
+echo                              
+echo Renaming /Users/"${getTrueP[*]}" to /Users/workathomeagent
+echo sudo mv /Users/"${getTrueP[*]}" /Users/workathomeagent
+sleep 1
+echo                   
+echo Changing Ownership and Permissions...
+echo sudo chown -R workathomeagent /Users/workathomeagent
+echo sudo chmod -R 755 /Users/workathomeagent
+sleep 5
+
+
+#sudo rm -rf /tmp/*.txt > /dev/null 2>&1
+
+#test arrays
+echo             
+echo +----- TEST ARRAYS -----+
+echo "${accList[*]} ---> NFS/REAL/REC LIST"
+echo "${userList[*]} --> USERLIST"
+echo "${getTrueP[*]} --> GETTRUE"
+echo "${delUsers[*]} --> DELUSERS"
+echo "${delAccounts[*]}  --> DELACCOUNTS"
+#test elem
+echo              
+echo +----- TEST ELEMENTS in accList -----+       
+echo "${accList[0]} ---> ACCOUNT 0 ELEM"
+echo "${accList[3]} ---> ACCOUNT 3 ELEM"
+echo "${accList[6]} ---> ACCOUNT 6 ELEM"
+echo "${accList[9]} ---> ACCOUNT 9 ELEM"
+echo "${accList[12]} ---> ACCOUNT 12 ELEM"
+echo "${accList[15]} ---> ACCOUNT 15 ELEM"
+echo "${accList[18]} ---> ACCOUNT 18 ELEM"
+
+echo                    
+echo               
+echo C O M P L E T E D !
+echo                          
+echo    
+echo Restarting MAC...
+echo                
+for (( i=10; i>=1; i-- ));
+do
+    if [[ i -eq 1 ]]; then
+        echo
+        echo rebooting NOW.. !
+        echo            
+        #sudo reboot
+    else
+        echo $i..
+        sleep 1
+    fi
+done

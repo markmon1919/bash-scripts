@@ -1,0 +1,170 @@
+#!/bin/bash
+#Created by Mark Mon Monteros
+#	*** Keychain Fix Script ***
+
+echo "*** Keychain Fix Script ***"
+echo 'Enter your local password: "concentrix"'
+sudo dscacheutil -flushcache
+echo Flushing DNS . . .
+
+mDNS1=$(pgrep mDNSResponder | sed -n 1p)
+mDNS2=$(pgrep mDNSResponder | sed -n 2p)
+SafariPS=$(ps aux | grep Safari | grep -v ttys | awk '{print $2}' > /tmp/SafariPS.txt)
+SafeViewPS=$(ps aux | grep SafeView | grep -v ttys | awk '{print $2}' > /tmp/SafeViewPS.txt)
+iLogPS=$(ps aux | grep iLog | grep -v ttys | awk '{print $2}' > /tmp/iLogPS.txt)
+ApplePS=$(ps aux | grep Apple | grep -v ttys | awk '{print $2}' > /tmp/ApplePS.txt)
+AvalonPS=$(ps aux | grep Avalon | grep -v ttys | awk '{print $2}' > /tmp/AvalonPS.txt)
+FortiPS=$(ps aux | grep Forti | grep -v ttys | awk '{print $2}' > /tmp/FortiPS.txt)
+
+declare Safari=(`cat /tmp/SafariPS.txt`)
+declare SafeView=(`cat /tmp/SafeViewPS.txt`)
+declare iLog=(`cat /tmp/iLogPS.txt`)
+declare Apple=(`cat /tmp/ApplePS.txt`)
+declare Avalon=(`cat /tmp/AvalonPS.txt`)
+declare Forti=(`cat /tmp/FortiPS.txt`)
+
+echo Closing Safari...
+countkSafari=$(echo ${#Safari[*]})
+
+for (( i=0; i<$countkSafari; i++ ));
+do
+    kill -9 ${Safari[$i]} > /dev/null 2>&1
+done
+
+echo Closing SafeView...
+countkSafeView=$(echo ${#SafeView[*]})
+
+for (( i=0; i<$countkSafeView; i++ ));
+do
+    kill -9 ${SafeView[$i]} > /dev/null 2>&1
+done
+
+echo Closing iLog...
+countkiLog=$(echo ${#iLog[*]})
+
+for (( i=0; i<$countkiLog; i++ ));
+do
+    kill -9 ${iLog[$i]} > /dev/null 2>&1
+done
+
+echo Closing AppleConnect...
+countkApple=$(echo ${#Apple[*]})
+
+for (( i=0; i<$countkApple; i++ ));
+do
+    kill -9 ${Apple[$i]} > /dev/null 2>&1
+done
+echo Closing Avalon...
+countkAvalon=$(echo ${#Avalon[*]})
+
+for (( i=0; i<$countkAvalon; i++ ));
+do
+    kill -9 ${Avalon[$i]} > /dev/null 2>&1
+done
+
+echo Closing FortiClient...
+countkForti=$(echo ${#Forti[*]})
+
+for (( i=0; i<$countkForti; i++ ));
+do
+    kill -9 ${Forti[$i]} > /dev/null 2>&1
+done
+
+sudo killall Safari > /dev/null 2>&1
+sudo killall iLog > /dev/null 2>&1
+sudo killall SafeView > /dev/null 2>&1
+sudo killall AppleConnectAgent > /dev/null 2>&1
+sudo killall Avalon > /dev/null 2>&1
+sudo killall FortiClient > /dev/null 2>&1
+
+echo                          
+echo Hang-Up mDNSResponder...
+sudo kill -HUP $mDNS1 $mDNS2 > /dev/null 2>&1
+echo                          
+echo Backing Up Safari Bookmarks...
+sudo cp -R ~/Library/Safari/Bookmarks.plist ~/Desktop
+sleep 1
+echo Clearing CACHES...
+echo
+kdestroy -a > /dev/null 2>&1
+sudo rm -rf /System/Library/Caches/* > /dev/null 2>&1
+sudo rm -rf /Library/Caches/* > /dev/null 2>&1
+sudo rm -rf ~/Library/Caches/* > /dev/null 2>&1
+sudo rm -rf /System/Library/CacheDelete/* > /dev/null 2>&1
+sudo rm -rf ~/Library/Cookies/* > /dev/null 2>&1
+sudo rm -rf ~/Library/Safari/* > /dev/null 2>&1
+sudo rm -rf ~/Library/Saved\ Application\ State/* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/com.apple.Safari* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/com.apple.Web* > /dev/null 2>&1
+sudo rm -rf ~/Library/PubSub/Database/* > /dev/null 2>&1
+sudo rm -rf /Library/LaunchDaemons/com.apple.* > /dev/null 2>&1
+sudo rm -rf /Library/LaunchAgents/com.apple.* > /dev/null 2>&1
+sudo rm -rf ~/Library/LaunchAgents/* > /dev/null 2>&1
+echo Clearing Network Settings...
+sudo rm -rf /Library/Preferences/SystemConfiguration/* > /dev/null 2>&1
+sudo rm -rf /Library/Preferences/com.apple.network* > /dev/null 2>&1
+echo Clearing AppleConnect Settings...
+sudo rm -rf /Library/Preferences/com.apple.ist* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/com.apple.ist* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/ByHost/com.apple.ist* > /dev/null 2>&1
+sudo rm -rf /Library/Preferences/com.apple.alf* > /dev/null 2>&1
+echo Clearing iLog Settings...
+sudo rm -rf ~/Library/Application\ Support/ILOG* > /dev/null 2>&1
+sudo rm -rf /Users/workathomeagent/ilog* > /dev/null 2>&1
+sudo rm -rf ~/ilog* > /dev/null 2>&1
+echo Clearing SafeView Settings...
+sudo rm -rf /Library/Application\ Support/SafeView* > /dev/null 2>&1
+sudo rm -rf ~/Library/Application\ Support/SafeView* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/com.apple.ids.service.com.apple.private.alloy.safeview.plist > /dev/null 2>&1
+echo Clearing Avalon Settings...
+sudo rm -rf ~/Library/Preferences/com.apple.ipTelephony.plist > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/com.apple.softphone.plist > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/com.apple.Telephony* > /dev/null 2>&1
+sudo rm -rf ~/Library/Application\ Support/Avalon* > /dev/null 2>&1
+sudo rm -rf ~/Library/Application\ Support/ADVoice* > /dev/null 2>&1
+echo Removing Temporary Files...
+sudo rm -rf ~/.temp* > /dev/null 2>&1
+sleep 3
+echo Restoring Safari Bookmarks...
+sudo mv ~/Desktop/Bookmarks.plist ~/Library/Safari/
+sleep 1
+echo Changing Ownership...
+sudo chown -R root:wheel /Applications/SafeView.app > /dev/null 2>&1
+sudo chown -R root:wheel /Applications/iLog.app > /dev/null 2>&1
+sudo chown -R root:wheel /Applications/AppleConnect.app > /dev/null 2>&1
+sudo chown -R root:wheel /Applications/FortiClient.app > /dev/null 2>&1
+sleep 3
+echo Changing Permissions...
+sudo chmod -R 755 /Applications/SafeView.app > /dev/null 2>&1
+sudo chmod -R 755 /Applications/iLog.app > /dev/null 2>&1
+sudo chmod -R 755 /Applications/AppleConnect.app > /dev/null 2>&1
+sudo chmod -R 755 /Applications/FortiClient.app > /dev/null 2>&1
+sleep 2
+echo Removing Keychains...
+sudo rm -rf /System/Library/Keychains/* > /dev/null 2>&1
+sudo rm -rf /Library/Keychains/* > /dev/null 2>&1
+sudo rm -rf ~/Library/Keychains/* > /dev/null 2>&1
+echo                          
+echo                          
+sudo mv ~/Desktop/importSSL ~/Downloads/ > /dev/null 2>&1
+sudo rm -rf /tmp/*.txt > /dev/null 2>&1
+
+
+echo C O M P L E T E D !
+echo                          
+echo    
+echo Restarting MAC...
+echo                
+for (( i=10; i>=1; i-- ));
+do
+    if [[ i -eq 1 ]]; then
+        echo
+        echo rebooting NOW.. !
+        echo            
+        sudo reboot
+    else
+        echo $i..
+        sleep 1
+    fi
+done
+killall Terminal

@@ -1,0 +1,122 @@
+#!/bin/bash
+#Created by Mark Mon Monteros
+#	*** Refresh All Processes Script ***
+
+echo "*** Refresh All Processes Script ***"
+echo 'Enter your local password: "concentrix"'
+sudo dscacheutil -flushcache
+echo Flushing DNS . . .
+
+mDNS1=$(pgrep mDNSResponder | sed -n 1p)
+mDNS2=$(pgrep mDNSResponder | sed -n 2p)
+SafariPS=$(ps aux | grep Safari | grep -v ttys | awk '{print $2}' > /tmp/SafariPS.txt)
+SafeViewPS=$(ps aux | grep SafeView | grep -v ttys | awk '{print $2}' > /tmp/SafeViewPS.txt)
+iLogPS=$(ps aux | grep iLog | grep -v ttys | awk '{print $2}' > /tmp/iLogPS.txt)
+ApplePS=$(ps aux | grep Apple | grep -v ttys | awk '{print $2}' > /tmp/ApplePS.txt)
+AvalonPS=$(ps aux | grep Avalon | grep -v ttys | awk '{print $2}' > /tmp/AvalonPS.txt)
+AdobePS=$(ps aux | grep Adobe | grep -v ttys | awk '{print $2}' > /tmp/AdobePS.txt)
+FortiPS=$(ps aux | grep Forti | grep -v ttys | awk '{print $2}' > /tmp/FortiPS.txt)
+
+declare Safari=(`cat /tmp/SafariPS.txt`)
+declare SafeView=(`cat /tmp/SafeViewPS.txt`)
+declare iLog=(`cat /tmp/iLogPS.txt`)
+declare Apple=(`cat /tmp/ApplePS.txt`)
+declare Avalon=(`cat /tmp/AvalonPS.txt`)
+declare Adobe=(`cat /tmp/AdobePS.txt`)
+declare Forti=(`cat /tmp/FortiPS.txt`)
+
+echo Closing Safari...
+countkSafari=$(echo ${#Safari[*]})
+
+for (( i=0; i<$countkSafari; i++ ));
+do
+    kill -9 ${Safari[$i]} > /dev/null 2>&1
+done
+
+echo Closing SafeView...
+countkSafeView=$(echo ${#SafeView[*]})
+
+for (( i=0; i<$countkSafeView; i++ ));
+do
+    kill -9 ${SafeView[$i]} > /dev/null 2>&1
+done
+
+echo Closing iLog...
+countkiLog=$(echo ${#iLog[*]})
+
+for (( i=0; i<$countkiLog; i++ ));
+do
+    kill -9 ${iLog[$i]} > /dev/null 2>&1
+done
+
+echo Closing AppleConnect...
+countkApple=$(echo ${#Apple[*]})
+
+for (( i=0; i<$countkApple; i++ ));
+do
+    kill -9 ${Apple[$i]} > /dev/null 2>&1
+done
+echo Closing Avalon...
+countkAvalon=$(echo ${#Avalon[*]})
+
+for (( i=0; i<$countkAvalon; i++ ));
+do
+    kill -9 ${Avalon[$i]} > /dev/null 2>&1
+done
+
+echo Closing Adobe Connect...
+countkAdobe=$(echo ${#Adobe[*]})
+
+for (( i=0; i<$countkAdobe; i++ ));
+do
+    kill -9 ${Adobe[$i]} > /dev/null 2>&1
+done
+
+echo Closing FortiClient...
+countkForti=$(echo ${#Forti[*]})
+
+for (( i=0; i<$countkForti; i++ ));
+do
+    kill -9 ${Forti[$i]} > /dev/null 2>&1
+done
+
+sudo killall Safari > /dev/null 2>&1
+sudo killall iLog > /dev/null 2>&1
+sudo killall SafeView > /dev/null 2>&1
+sudo killall AppleConnectAgent > /dev/null 2>&1
+sudo killall Avalon > /dev/null 2>&1
+sudo killall Adobe\ Connect > /dev/null 2>&1
+sudo killall FortiClient > /dev/null 2>&1
+
+echo    
+echo Hang-Up mDNSResponder...
+sudo kill -HUP $mDNS1 $mDNS2 > /dev/null 2>&1
+echo Clearing CACHES...
+sudo rm -rf /System/Library/Caches/* > /dev/null 2>&1
+sudo rm -rf /Library/Caches/* > /dev/null 2>&1
+sudo rm -rf ~/Library/Caches/* > /dev/null 2>&1
+sudo rm -rf /System/Library/CacheDelete/* > /dev/null 2>&1
+echo Removing Temporary Files...
+sudo rm -rf ~/.temp* > /dev/null 2>&1
+sleep 3
+echo Changing Ownership...
+sudo chown -R root:wheel /Applications/SafeView.app > /dev/null 2>&1
+sudo chown -R root:wheel /Applications/iLog.app > /dev/null 2>&1
+sudo chown -R root:wheel /Applications/AppleConnect.app > /dev/null 2>&1
+sudo chown -R root:wheel /Applications/FortiClient.app > /dev/null 2>&1
+sleep 3
+echo Changing Permissions...
+sudo chmod -R 755 /Applications/SafeView.app > /dev/null 2>&1
+sudo chmod -R 755 /Applications/iLog.app > /dev/null 2>&1
+sudo chmod -R 755 /Applications/AppleConnect.app > /dev/null 2>&1
+sudo chmod -R 755 /Applications/FortiClient.app > /dev/null 2>&1
+sleep 2
+sudo rm -rf /tmp/*.txt > /dev/null 2>&1
+echo
+echo              
+
+echo C O M P L E T E D !
+echo                          
+echo   
+
+killall Terminal

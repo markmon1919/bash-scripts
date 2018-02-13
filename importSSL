@@ -1,0 +1,34 @@
+#!/bin/bash
+#Created by Mark Mon Monteros
+#	*** SSL Import Script ***
+
+
+
+echo 'Enter your local password: "concentrix"'
+cd ~/Downloads
+cert=$(ls -lt | grep .cer | sed -n 1p | awk '{print$9}')
+import=$(sudo security add-trusted-cert -d -r trustAsRoot -k ~/Library/Keychains/login.keychain $cert)
+
+echo Importing SSL Certificate to Keychains...
+$import
+echo             
+echo Changing SSL Certificate to Always Trust...
+echo        
+sleep 2     
+echo Setting ComputerName and  HostName...
+name=$(security find-certificate -a ~/Library/Keychains/login.keychain | grep -A 1 CONCENTRIX-GVW-P-CA | tail -n 1 | cut -d\" -f4)
+sudo scutil --set ComputerName "$name"
+sudo scutil --set HostName "$name"
+echo                    
+echo Checking FortiClient Version...
+ver=$(mdls -name kMDItemVersion /Applications/FortiClient.app/ | awk '{print$3}' | cut -d\" -f2)
+echo FortiClient = "$ver"       
+echo                    
+echo                     
+echo Note: If issue persist, please re-install FortiClient in Self-Service.
+echo
+
+
+echo C O M P L E T E D !
+echo                     
+open /Applications/FortiClient.app

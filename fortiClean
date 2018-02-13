@@ -1,0 +1,76 @@
+#!/bin/bash
+#Created by Mark Mon Monteros
+#	*** Install/Uninstall FortiClient Script ***
+
+echo "*** FortiClient Reset Script ***"
+echo 'Enter your local password: "concentrix"'
+sudo dscacheutil -flushcache
+echo Flushing DNS . . .
+
+mDNS1=$(pgrep mDNSResponder | sed -n 1p)
+mDNS2=$(pgrep mDNSResponder | sed -n 2p)
+FortiPS=$(ps aux | grep Forti | grep -v ttys | awk '{print $2}' > /tmp/FortiPS.txt)
+vol=$(ls /Volumes > /tmp/Volumes.txt)
+target=$(cat /tmp/Volumes.txt)
+
+declare Forti=(`cat /tmp/FortiPS.txt`)
+
+sudo tar -cf ~/Desktop/Forti.bak /Library/Application\ Support/Fortinet/FortiClient/conf/vpn.plist
+echo Backing-up FortiClient profile...
+sleep 2
+
+echo Closing FortiClient...
+countkForti=$(echo ${#Forti[*]})
+
+for (( i=0; i<$countkForti; i++ ));
+do
+    kill -9 ${Forti[$i]} > /dev/null 2>&1
+done
+
+sudo killall FortiClient > /dev/null 2>&1
+
+echo         
+echo Hang-Up mDNSResponder...
+sudo kill -HUP $mDNS1 $mDNS2 > /dev/null 2>&1
+sudo rm -rf ~/Library/Saved\ Application\ State/com.forti* > /dev/null 2>&1
+sudo rm -rf /Library/Saved\ Application\ State/com.forti* > /dev/null 2>&1
+echo Uninstalling FortiClient...
+sudo /Applications/FortiClientUninstaller.app/Contents/MacOS/Uninstall
+sleep 10
+echo Downloading FortiClient...
+sudo curl -O https://d3gpjj9d20n0p3.cloudfront.net/forticlient/downloads/FortiClient_5.6.1.723_macosx.dmg
+sleep 120
+echo Clearing CACHES...
+sudo rm -rf /System/Library/Caches/* > /dev/null 2>&1
+sudo rm -rf /Library/Caches/* > /dev/null 2>&1
+sudo rm -rf ~/Library/Caches/* > /dev/null 2>&1
+sudo rm -rf /System/Library/CacheDelete/* > /dev/null 2>&1
+echo Removing Temporary Files...
+sudo rm -rf ~/.temp* > /dev/null 2>&1
+echo Mounting Disk Image...
+$vol
+sudo hdiutil mount /Volumes/"$target"/FortiClient_5.6.1.723_macosx.dmg
+sleep 2
+echo Installing FortiClient...
+sudo installer -pkg /Volumes/FortiClient/Install.mpkg -tgt /Volumes/"$target"
+sleep 15
+echo Unmounting Disk Image...
+sudo hdiutil unmount /Volumes/FortiClient
+sleep 2
+sudo rm -rf /Volumes/"$target"/FortiClient_5.6.1.723_macosx.dmg
+echo Importing FortiClient profile...
+sudo tar -xf ~/Desktop/Forti.bak -C /
+sleep 5
+echo Changing Ownership...
+sudo chown -R root:wheel /Applications/FortiClient.app > /dev/null 2>&1
+sleep 1
+echo Changing Permissions...
+sudo chmod -R 755 /Applications/FortiClient.app > /dev/null 2>&1
+sudo rm -rf ~/Desktop/Forti.bak > /dev/null 2>&1
+sudo rm -rf /tmp/*.txt > /dev/null 2>&1
+
+echo
+echo            
+echo C O M P L E T E !
+open /Applications/FortiClient.app
+sudo killall Terminal

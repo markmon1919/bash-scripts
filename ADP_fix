@@ -1,0 +1,74 @@
+#!/bin/bash
+#Created by Mark Mon Monteros
+#	*** ADP Fix Script ***
+
+echo "*** ADP Fix Script ***"
+echo 'Enter your local password: "concentrix"'
+sudo dscacheutil -flushcache
+echo Flushing DNS . . .
+
+mDNS1=$(pgrep mDNSResponder | sed -n 1p)
+mDNS2=$(pgrep mDNSResponder | sed -n 2p)
+SafariPS=$(ps aux | grep Safari | grep -v ttys | awk '{print $2}' > /tmp/SafariPS.txt)
+
+declare Safari=(`cat /tmp/SafariPS.txt`)
+
+echo Closing Safari...
+countkSafari=$(echo ${#Safari[*]})
+
+for (( i=0; i<$countkSafari; i++ ));
+do
+    kill -9 ${Safari[$i]} > /dev/null 2>&1
+done
+
+echo Hang-Up mDNSResponder...
+sudo kill -HUP $mDNS1 $mDNS2 > /dev/null 2>&1
+echo Backing Up Safari Bookmarks...
+sudo cp -R ~/Library/Safari/Bookmarks.plist ~/Desktop
+echo Clearing Java Plug-ins...
+sudo rm -rf /Library/Preferences/com.oracle* > /dev/null 2>&1
+sudo rm -rf /Library/Java* > /dev/null 2>&1
+sudo rm -rf /Library/Internet \Plug \Ins/Java* > /dev/null 2>&1
+sudo rm -rf ~/Library/Oracle* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/com.oracle* > /dev/null 2>&1
+echo Clearing CACHES...
+sudo rm -rf /System/Library/Caches/* > /dev/null 2>&1
+sudo rm -rf /Library/Caches/* > /dev/null 2>&1
+sudo rm -rf ~/Library/Caches/* > /dev/null 2>&1
+sudo rm -rf /System/Library/CacheDelete/* > /dev/null 2>&1
+echo Clearing COOKIES...
+sudo rm -rf ~/Library/Cookies/* > /dev/null 2>&1
+echo Clearing HISTORY...
+sudo rm -rf ~/Library/Safari/* > /dev/null 2>&1
+sudo rm -rf ~/Library/Saved\ Application\ State/* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/com.apple.Safari* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/com.apple.Web* > /dev/null 2>&1
+sudo rm -rf ~/Library/PubSub/Database/* > /dev/null 2>&1
+echo Removing Temporary Files...
+sudo rm -rf ~/.temp* > /dev/null 2>&1
+sleep 3
+echo Restoring Safari Bookmarks...
+mv ~/Desktop/Bookmarks.plist ~/Library/Safari/
+echo Disabling Safari Pop-ups...
+open -g -a Safari
+killall Safari
+sleep 1
+WHO=$(whoami > /tmp/whoami.txt)
+WHOAMI=$(cat /tmp/whoami.txt)
+HOMEDIR=$(dscl . -read /Users/"$WHOAMI" NFSHomeDirectory | awk '{print$2}')
+LIB=$(echo /Library/Preferences/com.apple.Safari.plist)
+WRITE=$(echo $HOMEDIR$LIB)
+defaults write $WRITE com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaScriptCanOpenWindowsAutomatically "1"
+sleep 1
+echo Please download Java Runtime Environment Plugin...
+open -a Safari -g http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html
+
+sudo rm -rf /tmp/*.txt > /dev/null 2>&1
+echo C O M P L E T E !
+echo
+echo
+echo "Download latest Adobe Flash Player plugin for macOS"
+echo "Download latest Java JRE Plugin for macOS at http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html"
+echo "or type this keyword on the Search Engine --> JRE download OSX"
+echo
+echo          

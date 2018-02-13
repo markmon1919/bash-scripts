@@ -1,0 +1,201 @@
+#!/bin/bash
+#Created by Mark Mon Monteros
+#	*** User Account Fix Script ***
+
+echo "*** User Account Fix Script ***"
+echo                             
+echo "Note: Use this script with CAUTION! Please don't run this if there aren't any user account issues..."
+echo
+echo Before proceeding.. Make sure you are logged in to an administrator user account: 'admin', 'localadmin', '_casper'
+echo Or you can use the terminal command: login
+echo                         
+echo 'Enter your local password: "concentrix"'
+
+sudo rm -rf /tmp/*.txt > /dev/null 2>&1
+
+#GET USER PATH
+ls -l /Users | awk {'print$5" "$9" "$10" "$11" "$12" "$13" "$14" "$15'} | sort -n | awk '{$1=""; print $0}' | cut -d " " -f2,3 | grep -v ^a$ | grep -v ^localadmin$ | grep -v ^cnxadmin$ | grep -v ^admin$ | grep -v ^Shared$ | sed '/^\s*$/d' > /tmp/userList.txt
+
+#GET ACCOUNT NAME + NFSHOMEDIR
+sudo dscl . -list /Users NFSHomeDirectory | grep ./Users | grep -v ./observe$ | grep -v ./admin$ | grep -v ./localadmin$ | grep -v ./cnxadmin$ | grep -v ./a$ | grep -v ./Shared$ | sed '/^\s*$/d' | awk '{print$1}' > /tmp/accList.txt
+declare -a accList=(`cat /tmp/accList.txt`)
+
+#scan white spaces
+countAcc=$(cat /tmp/accList.txt | wc -l)
+countUser=$(cat /tmp/userList.txt | wc -l)
+
+for (( i=1; i<=$countUser; i++ )); do
+    cat /tmp/userList.txt | sed -n "$i"p > /tmp/usrspace$i.txt
+done
+
+for (( i=0; i<=$countAcc-1; i++ )); do
+    sudo dscl . -read /Users/${accList[$i]} NFSHomeDirectory | cut -d " " -f2,3 | tail -n 1 > /tmp/accspaceNFS$i.txt
+done
+
+#rename white spaces in userList
+for (( i=1; i<=$countUser; i++ )); do
+if [[ "`cat /tmp/usrspace$i.txt`" =~ " " ]]; then
+    echo sudo mv "/Users/`cat /tmp/usrspace$i.txt`" "/Users/`cat /tmp/usrspace$i.txt | tr -d " "`"
+    sleep 2
+fi
+done
+
+#catch white spaces in accList
+#NFS/RN/RECN
+for (( i=0; i<=$countAcc-1; i++ )); do
+if [[ "`cat /tmp/accspaceNFS$i.txt`" =~ " " ]]; then
+    if [[ i -eq 0 ]]; then
+    dscl . -read /Users/${accList[$i]} NFSHomeDirectory | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -1 | sed '/^\s*$/d' > /tmp/whiteS.txt
+    dscl . -read /Users/${accList[$i]} RealName | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -1 | sed '/^\s*$/d' >> /tmp/whiteS.txt
+    dscl . -read /Users/${accList[$i]} RecordName | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -1 | sed '/^\s*$/d' >> /tmp/whiteS.txt
+    else
+    dscl . -read /Users/${accList[$i]} NFSHomeDirectory | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -1 | sed '/^\s*$/d' >> /tmp/whiteS.txt
+    dscl . -read /Users/${accList[$i]} RealName | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -1 | sed '/^\s*$/d' >> /tmp/whiteS.txt
+    dscl . -read /Users/${accList[$i]} RecordName | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -1 | sed '/^\s*$/d' >> /tmp/whiteS.txt
+    fi
+fi
+done
+
+#isolate NFS and RN
+cntwhiteS=$(cat /tmp/whiteS.txt | wc -l)
+cntisoRN=$(cat /tmp/whiteS.txt | wc -l)
+cat /tmp/whiteS.txt | grep /Users > /tmp/isoNFS.txt
+for (( i=2; i<=$cntwhiteS; i=i+2 )); do
+cat /tmp/whiteS.txt | sed -n "$i"p > /tmp/isoRN.txt
+done
+declare -a isoRN=(`cat /tmp/isoRN.txt`)
+
+#Renaming whitespaces
+ if [[ `cat /tmp/isoNFS.txt` =~ " " ]]; then
+    cntisoNFS=$(echo `cat /tmp/isoNFS.txt | wc -l`)
+    if [[ $cntisoNFS -le 1 ]]; then
+    echo sudo mv "`cat /tmp/isoNFS.txt | sed -n "$cntisoNFS"p`" "`cat /tmp/isoNFS.txt | sed -n "$cntisoNFS"p | tr -d " "`" 
+    else
+        for (( i=2; i<=$cntisoNFS; i++ )); do
+        echo sudo mv "`cat /tmp/isoNFS.txt | sed -n "$cntisoNFS"p`" "`cat /tmp/isoNFS.txt | sed -n "$cntisoNFS"p | tr -d " "`" 
+        done
+    fi
+ fi
+
+#reload accList array
+dscl . -list /Users NFSHomeDirectory | grep ./Users | grep -v ./observe$ | grep -v ./admin$ | grep -v ./localadmin$ | grep -v ./cnxadmin$ | grep -v ./a$ | grep -v ./Shared$ | sed '/^\s*$/d' | awk '{print$1}' > /tmp/accList.txt
+declare -a accList=(`cat /tmp/accList.txt`)
+
+#modify array for Users
+ls -l /Users | awk {'print$5" "$9" "$10" "$11" "$12" "$13" "$14" "$15'} | sort -n | awk '{$1=""; print $0}' | cut -d " " -f2,3 | grep -v ^a$ | grep -v ^localadmin$ | grep -v ^cnxadmin$ | grep -v ^admin$ | grep -v ^Shared$ | sed '/^\s*$/d' > /tmp/userList.txt
+declare -a userList=(`cat /tmp/userList.txt`)
+
+
+#modify array for Accounts
+for (( i=0; i<=$countAcc-1; i++ )); do
+    if [[ i -eq 0 ]]; then
+    dscl . -read /Users/${accList[$i]} | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -3 | sed '/^\s*$/d' > /tmp/accList.txt
+    else
+    dscl . -read /Users/${accList[$i]} | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -3 | sed '/^\s*$/d' >> /tmp/accList.txt
+    fi
+done
+declare -a accList=(`cat /tmp/accList.txt`)
+
+#Remove True Account in List
+elemCount=$(echo ${#userList[*]})
+rmelem=$(echo $elemCount | awk '{print$1-1}')
+declare -a delUsers=(${userList[*]:0:$rmelem} ${userList[*]:$(expr $rmelem + 1)})
+
+#get True Account
+echo ${userList[$rmelem]} > /tmp/getTrueP.txt
+declare -a getTrueP=(`cat /tmp/getTrueP.txt`)
+
+#Matching
+declare -a trimNFS=(`cat /tmp/accList.txt | grep /Users | cut -d / -f3`)
+
+cntTrim=$(echo ${#trimNFS[*]})
+
+for (( i=0; i<=$cntTrim-1; i++ )); do
+    if [[ "${getTrueP[0]}" == "${trimNFS[$i]}" ]]; then
+        echo "True Account Found:"
+        echo "${trimNFS[$i]}"
+        echo $i > /tmp/getTrueElem.txt
+    fi   
+done
+getTrueElem=$(cat /tmp/getTrueElem.txt)
+declare -a delAccounts=(${trimNFS[*]:0:$getTrueElem} ${trimNFS[*]:$(expr $getTrueElem + 1)})
+
+
+#DELETE ALL ELEMENTS IN ARRAYS
+#delUsers -- /Users folder path
+echo             
+echo Removing Other Users Home Folder Paths...
+cntdelUsers=$(echo ${#delUsers[*]})
+for (( i=0; i<=$cntdelUsers-1; i++ )); do
+    sudo rm -rf /Users/"${delUsers[$i]}"
+    echo "Removing Home Folder: " /Users/"${delUsers[$i]}"
+    sleep 2
+done
+
+#delAccounts -- Accounts
+echo               
+echo Removing Other User Accounts...
+cntdelAccounts=$(echo ${#delAccounts[*]})
+for (( i=0; i<=$cntdelAccounts-1; i++ )); do
+    sudo dscl . -delete /Users/"${delAccounts[$i]}"
+    echo "Removing User Account: " "${delAccounts[$i]}"
+    sleep 2
+done
+
+#getTrue Account Details
+echo             
+matchTrue=$(echo "/Users/${getTrueP[0]}")
+countT=$(echo ${#accList[*]})
+
+for (( i=0; i<=$countT-1; i++ )); do
+    if [[ "$matchTrue" == "${accList[$i]}" ]]; then
+        echo "Real Name Found:" ${accList[$i+1]}
+        echo ${accList[$i+1]} > /tmp/getRN.txt
+        echo "Record Name Found:" ${accList[$i+2]}
+        echo ${accList[$i+2]} > /tmp/getRecN.txt
+        echo "NFS Home Directory Found:" ${accList[$i]}
+        echo ${accList[$i]} > /tmp/getNFS.txt
+    fi   
+done
+
+echo             
+echo Migrating "`cat /tmp/getRecN.txt`" Account to workathomeagent
+echo changing NFSHomeDirectory from "`cat /tmp/getNFS.txt`" to /Users/workathomeagent
+sudo dscl . -change /Users/"`cat /tmp/getRecN.txt`" NFSHomeDirectory "`cat /tmp/getRecN.txt`" /Users/workathomeagent
+sleep 2
+echo changing RecordName from "`cat /tmp/getRecN.txt`" to workathomeagent
+sudo dscl . -change /Users/"`cat /tmp/getRecN.txt`" RecordName "`cat /tmp/getRecN.txt`" workathomeagent
+sleep 2
+echo changing RealName from "`cat /tmp/getRN.txt`" to "WorkAtHomeAgent"
+echo dscl . -change /Users/"`cat /tmp/getRecN.txt`" RealName "`cat /tmp/getRN.txt`" "WorkAtHomeAgent"
+sleep 2
+echo                              
+echo Renaming /Users/"`cat /tmp/getRecN.txt`" to /Users/workathomeagent
+sudo mv /Users/"`cat /tmp/getRecN.txt`" /Users/workathomeagent
+sleep 1
+echo            
+echo Changing Ownership and Permissions...
+sudo chown -R workathomeagent /Users/workathomeagent
+sudo chmod -R 755 /Users/workathomeagent
+sleep 5
+#sudo rm -rf /tmp/*.txt > /dev/null 2>&1
+
+echo                    
+echo               
+echo C O M P L E T E D !
+echo                          
+echo    
+echo Restarting MAC...
+echo
+for (( i=10; i>=1; i-- ));
+do
+    if [[ i -eq 1 ]]; then
+        echo
+        echo rebooting now.. !
+        echo            
+        sudo reboot
+    else
+        echo $i..
+        sleep 1
+    fi
+done

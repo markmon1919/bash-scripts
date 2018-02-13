@@ -1,0 +1,302 @@
+#!/bin/bash
+#	Created by Mark Mon Monteros 
+#	*** Jitter Check Script ***
+
+echo "*** Jitter Check Script ***"
+echo 'Enter your local password: "concentrix"'
+sudo dscacheutil -flushcache
+echo Flushing DNS . . .
+echo
+echo +-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+echo Pinging Router...
+router=$(ipconfig getpacket en0 | grep router | awk '{print$3}' | cut -d} -f1 | cut -d{ -f2)
+pingR=$(ping -c 25 $router > /tmp/router.txt)
+
+declare ROUTER=(`cat /tmp/router.txt | awk '{print$7}' | cut -d = -f2 | sed -n '2,26p'`)
+
+maxR=$(cat /tmp/router.txt | tail -n 1 | awk '{print $4}' | cut -d/ -f3)
+minR=$(cat /tmp/router.txt | tail -n 1 | awk '{print $4}' | cut -d/ -f1)
+aveR=$(cat /tmp/router.txt | tail -n 1 | awk '{print $4}' | cut -d/ -f2)
+packrecR=$(cat /tmp/router.txt | grep packets | awk '{print$1}')
+packtransR=$(cat /tmp/router.txt | grep packets | awk '{print$4}')
+packlossR=$(cat /tmp/router.txt | grep packets | awk '{print$7}')
+
+if [[ $packrecR -lt 25 ]]; then
+  recR=(`echo FAILED!`)
+else
+  recR=(`echo OK!!!`)
+fi
+
+if [[ $packtransR -lt 25 ]]; then
+  transR=(`echo FAILED!`)
+else
+  transR=(`echo OK!!!`)
+fi
+
+if [[ $packlossR != "0.0%" ]]; then
+  lossR=(`echo FAILED!`)
+else
+  lossR=(`echo OK!!!`)
+fi
+
+for (( i=0; i<24; i++ )); do
+ if [[ $i -eq 0 ]]; then
+   echo ${ROUTER[*]:$i:2} | awk '{print$1-$2}' | tr -d "-" | sed '/^\s*$/d' > /tmp/diffR.txt
+   else
+   echo ${ROUTER[*]:$i:2} | awk '{print$1-$2}' | tr -d "-" | sed '/^\s*$/d' >> /tmp/diffR.txt
+ fi
+done
+
+declare diffR=(`cat /tmp/diffR.txt`)
+declare totalR=(`cat /tmp/diffR.txt | awk 'BEGIN {sum=0} {sum+=$1} END {print sum}'`)
+jitterR=(`echo ${totalR[*]} | awk '{print$0/25}'`)
+roundR=(`echo ${totalR[*]} | awk '{print$0/25}' | awk '{print ($0-int($0)<0.499)?int($0):int($0)+1}'`)
+
+echo Ping result @ $router
+echo ----------------------------+
+echo Max $maxR
+echo Min $minR
+echo Ave $aveR
+echo Packets Received: $packrecR/25 = $recR/
+echo Packets Transmitted: $packtransR/25 = $transR
+echo Packet Loss: $packlossR = $lossR
+echo ---------------------
+echo Jitter = $jitterR ms
+echo ---------------------
+if [[ $roundR -ge 0 ]] && [[ $roundR -le 5 ]]; then
+   echo "Result is = EXCELLENT!"
+elif [[ $roundR -gt 5 ]] && [[ $roundR -le 10 ]]; then
+   echo "Result is = VERY GOOD!"
+elif [[ $roundR -gt 10 ]] && [[ $roundR -le 15 ]]; then
+   echo "Result is = GOOD!"
+elif [[ $roundR -gt 15 ]] && [[ $roundR -le 20 ]]; then
+   echo "Result is = FAIR!"
+elif [[ $roundR -gt 20 ]] && [[ $roundR -le 30 ]]; then
+   echo "Result is = BAD!"
+else 
+   echo "Result is = POOR!"
+fi
+
+echo
+echo +-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+echo Pinging GreenVille VPN...
+pingGV=$(ping -c 25 216.85.164.129 > /tmp/GV.txt)
+GV=$(cat /tmp/GV.txt | sed -n 2p | awk '{print $4}' | cut -d: -f1)
+
+declare GREENVILLE=(`cat /tmp/GV.txt | awk '{print$7}' | cut -d = -f2 | sed -n '2,26p'`)
+
+maxGV=$(cat /tmp/GV.txt | tail -n 1 | awk '{print $4}' | cut -d/ -f3)
+minGV=$(cat /tmp/GV.txt | tail -n 1 | awk '{print $4}' | cut -d/ -f1)
+aveGV=$(cat /tmp/GV.txt | tail -n 1 | awk '{print $4}' | cut -d/ -f2)
+packrecGV=$(cat /tmp/GV.txt | grep packets | awk '{print$1}')
+packtransGV=$(cat /tmp/GV.txt | grep packets | awk '{print$4}')
+packlossGV=$(cat /tmp/GV.txt | grep packets | awk '{print$7}')
+
+if [[ $packrecGV -lt 25 ]]; then
+  recGV=(`echo FAILED!`)
+else
+  recGV=(`echo OK!!!`)
+fi
+
+if [[ $packtransGV -lt 25 ]]; then
+  transGV=(`echo FAILED!`)
+else
+  transGV=(`echo OK!!!`)
+fi
+
+if [[ $packlossGV != "0.0%" ]]; then
+  lossGV=(`echo FAILED!`)
+else
+  lossGV=(`echo OK!!!`)
+fi
+
+for (( i=0; i<24; i++ )); do
+ if [[ $i -eq 0 ]]; then
+   echo ${GREENVILLE[*]:$i:2} | awk '{print$1-$2}' | tr -d "-" | sed '/^\s*$/d' > /tmp/diffGV.txt
+   else
+   echo ${GREENVILLE[*]:$i:2} | awk '{print$1-$2}' | tr -d "-" | sed '/^\s*$/d' >> /tmp/diffGV.txt
+ fi
+done
+
+declare diffGV=(`cat /tmp/diffGV.txt`)
+declare totalGV=(`cat /tmp/diffGV.txt | awk 'BEGIN {sum=0} {sum+=$1} END {print sum}'`)
+jitterGV=(`echo ${totalGV[*]} | awk '{print$0/25}'`)
+roundGV=(`echo ${totalGV[*]} | awk '{print$0/25}' | awk '{print ($0-int($0)<0.499)?int($0):int($0)+1}'`)
+
+echo Ping result @ $GV
+echo ----------------------------+
+echo Max $maxGV
+echo Min $minGV
+echo Ave $aveGV
+echo Packets Received: $packrecGV/25 = $recGV
+echo Packets Transmitted: $packtransGV/25 = $transGV
+echo Packet Loss: $packlossGV = $lossGV
+echo ---------------------
+echo Jitter = $jitterGV ms
+echo ---------------------
+if [[ $roundGV -ge 0 ]] && [[ $roundGV -le 5 ]]; then
+   echo "Result is = EXCELLENT!"
+elif [[ $roundGV -gt 5 ]] && [[ $roundGV -le 10 ]]; then
+   echo "Result is = VERY GOOD!"
+elif [[ $roundGV -gt 10 ]] && [[ $roundGV -le 15 ]]; then
+   echo "Result is = GOOD!"
+elif [[ $roundGV -gt 15 ]] && [[ $roundGV -le 20 ]]; then
+   echo "Result is = FAIR!"
+elif [[ $roundGV -gt 20 ]] && [[ $roundGV -le 30 ]]; then
+   echo "Result is = BAD!"
+else 
+   echo "Result is = POOR!"
+fi
+
+echo    
+echo +-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+echo Pinging Phoenix VPN...
+pingPHX=$(ping -c 25 209.136.238.37 > /tmp/PHX.txt)
+PHX=$(cat /tmp/PHX.txt | sed -n 2p | awk '{print $4}' | cut -d: -f1)
+
+declare PHOENIX=(`cat /tmp/PHX.txt | awk '{print$7}' | cut -d = -f2 | sed -n '2,26p'`)
+
+maxPHX=$(cat /tmp/PHX.txt | tail -n 1 | awk '{print $4}' | cut -d/ -f3)
+minPHX=$(cat /tmp/PHX.txt | tail -n 1 | awk '{print $4}' | cut -d/ -f1)
+avePHX=$(cat /tmp/PHX.txt | tail -n 1 | awk '{print $4}' | cut -d/ -f2)
+packrecPHX=$(cat /tmp/PHX.txt | grep packets | awk '{print$1}')
+packtransPHX=$(cat /tmp/PHX.txt | grep packets | awk '{print$4}')
+packlossPHX=$(cat /tmp/PHX.txt | grep packets | awk '{print$7}')
+
+if [[ $packrecPHX -lt 25 ]]; then
+  recPHX=(`echo FAILED!`)
+else
+  recPHX=(`echo OK!!!`)
+fi
+
+if [[ $packtransPHX -lt 25 ]]; then
+  transPHX=(`echo FAILED!`)
+else
+  transPHX=(`echo OK!!!`)
+fi
+
+if [[ $packlossPHX != "0.0%" ]]; then
+  lossPHX=(`echo FAILED!`)
+else
+  lossPHX=(`echo OK!!!`)
+fi
+
+for (( i=0; i<24; i++ )); do
+ if [[ $i -eq 0 ]]; then
+   echo ${PHOENIX[*]:$i:2} | awk '{print$1-$2}' | tr -d "-" | sed '/^\s*$/d' > /tmp/diffPHX.txt
+   else
+   echo ${PHOENIX[*]:$i:2} | awk '{print$1-$2}' | tr -d "-" | sed '/^\s*$/d' >> /tmp/diffPHX.txt
+ fi
+done
+
+declare diffPHX=(`cat /tmp/diffPHX.txt`)
+declare totalPHX=(`cat /tmp/diffPHX.txt | awk 'BEGIN {sum=0} {sum+=$1} END {print sum}'`)
+jitterPHX=(`echo ${totalPHX[*]} | awk '{print$0/25}'`)
+roundPHX=(`echo ${totalPHX[*]} | awk '{print$0/25}' | awk '{print ($0-int($0)<0.499)?int($0):int($0)+1}'`)
+
+echo Ping result @ $PHX
+echo ----------------------------+
+echo Max $maxPHX
+echo Min $minPHX
+echo Ave $avePHX
+echo Packets Received: $packrecPHX/25 = $recPHX
+echo Packets Transmitted: $packtransPHX/25 = $transPHX
+echo Packet Loss: $packlossPHX = $lossPHX
+echo ---------------------
+echo Jitter = $jitterPHX ms
+echo ---------------------
+if [[ $roundPHX -ge 0 ]] && [[ $roundPHX -le 5 ]]; then
+   echo "Result is = EXCELLENT!"
+elif [[ $roundPHX -gt 5 ]] && [[ $roundPHX -le 10 ]]; then
+   echo "Result is = VERY GOOD!"
+elif [[ $roundPHX -gt 10 ]] && [[ $roundPHX -le 15 ]]; then
+   echo "Result is = GOOD!"
+elif [[ $roundPHX -gt 15 ]] && [[ $roundPHX -le 20 ]]; then
+   echo "Result is = FAIR!"
+elif [[ $roundPHX -gt 20 ]] && [[ $roundPHX -le 30 ]]; then
+   echo "Result is = BAD!"
+else 
+   echo "Result is = POOR!"
+fi
+
+echo    
+echo +-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+echo Pinging Google DNS...
+pingGG=$(ping -c 25 8.8.8.8 > /tmp/GG.txt)
+GG=$(cat /tmp/GG.txt | sed -n 2p | awk '{print $4}' | cut -d: -f1)
+
+declare GOOGLE=(`cat /tmp/GG.txt | awk '{print$7}' | cut -d = -f2 | sed -n '2,26p'`)
+
+maxGG=$(cat /tmp/GG.txt | tail -n 1 | awk '{print $4}' | cut -d/ -f3)
+minGG=$(cat /tmp/GG.txt | tail -n 1 | awk '{print $4}' | cut -d/ -f1)
+aveGG=$(cat /tmp/GG.txt | tail -n 1 | awk '{print $4}' | cut -d/ -f2)
+packrecGG=$(cat /tmp/GG.txt | grep packets | awk '{print$1}')
+packtransGG=$(cat /tmp/GG.txt | grep packets | awk '{print$4}')
+packlossGG=$(cat /tmp/GG.txt | grep packets | awk '{print$7}')
+
+if [[ $packrecGG -lt 25 ]]; then
+  recGG1=(`echo FAILED!`)
+else
+  recGG1=(`echo OK!!!`)
+fi
+
+if [[ $packtransGG -lt 25 ]]; then
+  transGG1=(`echo FAILED!`)
+else
+  transGG1=(`echo OK!!!`)
+fi
+
+if [[ $packlossGG != "0.0%" ]]; then
+  lossGG1=(`echo FAILED!`)
+else
+  lossGG1=(`echo OK!!!`)
+fi
+
+for (( i=0; i<24; i++ )); do
+ if [[ $i -eq 0 ]]; then
+   echo ${GOOGLE[*]:$i:2} | awk '{print$1-$2}' | tr -d "-" | sed '/^\s*$/d' > /tmp/diffGG.txt
+   else
+   echo ${GOOGLE[*]:$i:2} | awk '{print$1-$2}' | tr -d "-" | sed '/^\s*$/d' >> /tmp/diffGG.txt
+ fi
+done
+
+declare diffGG=(`cat /tmp/diffGG.txt`)
+declare totalGG=(`cat /tmp/diffGG.txt | awk 'BEGIN {sum=0} {sum+=$1} END {print sum}'`)
+jitterGG=(`echo ${totalGG[*]} | awk '{print$0/25}'`)
+roundGG=(`echo ${totalGG[*]} | awk '{print$0/25}' | awk '{print ($0-int($0)<0.499)?int($0):int($0)+1}'`)
+
+echo Ping result @ $GG
+echo ----------------------------+
+echo Max $maxGG
+echo Min $minGG
+echo Ave $aveGG
+echo Packets Received: $packrecGG/25 = $recGG1
+echo Packets Transmitted: $packtransGG/25 = $transGG1
+echo Packet Loss: $packlossGG = $lossGG1
+echo ---------------------
+echo Jitter = $jitterGG ms
+echo ---------------------
+if [[ $roundGG -ge 0 ]] && [[ $roundGG -le 5 ]]; then
+   echo "Result is = EXCELLENT!"
+elif [[ $roundGG -gt 5 ]] && [[ $roundGG -le 10 ]]; then
+   echo "Result is = VERY GOOD!"
+elif [[ $roundGG -gt 10 ]] && [[ $roundGG -le 15 ]]; then
+   echo "Result is = GOOD!"
+elif [[ $roundGG -gt 15 ]] && [[ $roundGG -le 20 ]]; then
+   echo "Result is = FAIR!"
+elif [[ $roundGG -gt 20 ]] && [[ $roundGG -le 30 ]]; then
+   echo "Result is = BAD!"
+else 
+   echo "Result is = POOR!"
+fi
+
+#sudo rm -rf /tmp/*.txt
+echo    
+echo SPEED TEST...
+echo                    
+curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python
+sleep 4
+echo
+echo
+echo C O M P L E T E D !
+echo   

@@ -1,0 +1,25 @@
+#!/bin/bash
+
+while true;
+do
+sudo jamf enroll -prompt
+echo $?
+done
+
+echo C O M P L E T E D !
+echo                          
+echo    
+echo Restarting MAC...
+echo                
+for (( i=10; i>=1; i-- ));
+do
+    if [[ i -eq 1 ]]; then
+        echo
+        echo rebooting .. !
+        echo            
+        #sudo reboot
+    else
+        echo $i..
+        sleep 1
+    fi
+done
