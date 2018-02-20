@@ -30,7 +30,7 @@ countkSafari=$(echo ${#Safari[*]})
 
 for (( i=0; i<$countkSafari; i++ ));
 do
-    kill -9 ${Safari[$i]} > /dev/null 2>&1
+    sudo kill -9 ${Safari[$i]} > /dev/null 2>&1
 done
 
 echo Closing SafeView...
@@ -38,7 +38,7 @@ countkSafeView=$(echo ${#SafeView[*]})
 
 for (( i=0; i<$countkSafeView; i++ ));
 do
-    kill -9 ${SafeView[$i]} > /dev/null 2>&1
+    sudo kill -9 ${SafeView[$i]} > /dev/null 2>&1
 done
 
 echo Closing iLog...
@@ -46,7 +46,7 @@ countkiLog=$(echo ${#iLog[*]})
 
 for (( i=0; i<$countkiLog; i++ ));
 do
-    kill -9 ${iLog[$i]} > /dev/null 2>&1
+    sudo kill -9 ${iLog[$i]} > /dev/null 2>&1
 done
 
 echo Closing AppleConnect...
@@ -54,14 +54,14 @@ countkApple=$(echo ${#Apple[*]})
 
 for (( i=0; i<$countkApple; i++ ));
 do
-    kill -9 ${Apple[$i]} > /dev/null 2>&1
+    sudo kill -9 ${Apple[$i]} > /dev/null 2>&1
 done
 echo Closing Avalon...
 countkAvalon=$(echo ${#Avalon[*]})
 
 for (( i=0; i<$countkAvalon; i++ ));
 do
-    kill -9 ${Avalon[$i]} > /dev/null 2>&1
+    sudo kill -9 ${Avalon[$i]} > /dev/null 2>&1
 done
 
 echo Closing Adobe Connect...
@@ -69,7 +69,7 @@ countkAdobe=$(echo ${#Adobe[*]})
 
 for (( i=0; i<$countkAdobe; i++ ));
 do
-    kill -9 ${Adobe[$i]} > /dev/null 2>&1
+    sudo kill -9 ${Adobe[$i]} > /dev/null 2>&1
 done
 
 echo Closing FortiClient...
@@ -77,7 +77,7 @@ countkForti=$(echo ${#Forti[*]})
 
 for (( i=0; i<$countkForti; i++ ));
 do
-    kill -9 ${Forti[$i]} > /dev/null 2>&1
+    sudo kill -9 ${Forti[$i]} > /dev/null 2>&1
 done
 
 sudo killall Safari > /dev/null 2>&1
@@ -119,4 +119,4 @@ echo C O M P L E T E D !
 echo                          
 echo   
 
-killall Terminal
+sudo killall Terminal

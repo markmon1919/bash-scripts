@@ -22,7 +22,7 @@ countkForti=$(echo ${#Forti[*]})
 
 for (( i=0; i<$countkForti; i++ ));
 do
-    kill -9 ${Forti[$i]} > /dev/null 2>&1
+    sudo kill -9 ${Forti[$i]} > /dev/null 2>&1
 done
 
 sudo killall FortiClient > /dev/null 2>&1
@@ -36,7 +36,10 @@ sudo rm -rf /Library/LaunchDaemons/com.forti* > /dev/null 2>&1
 sudo rm -rf /Library/LaunchAgents/com.forti* > /dev/null 2>&1
 echo Removing all FortiClient libraries...
 sudo rm -rf ~/Library/Application\ Support/Forti* > /dev/null 2>&1
-sudo rm -rf /Library/Application\ Support/Forti* > /dev/null 2>&1
+sudo rm -rf /Library/Application\ Support/Fortinet/FortiClient/Logs > /dev/null 2>&1
+sudo rm -rf /Library/Application\ Support/Fortinet/FortiClient/data > /dev/null 2>&1
+sudo rm -rf /Library/Application\ Support/Fortinet/FortiClient/ipsec > /dev/null 2>&1
+sudo rm -rf /Library/Application\ Support/Fortinet/FortiClient/tmp > /dev/null 2>&1
 echo Removing all FortiClient settings...
 sudo rm -rf ~/Library/Application\ Support/com.forti* > /dev/null 2>&1
 sudo rm -rf /Library/Application\ Support/com.forti* > /dev/null 2>&1
@@ -67,5 +70,6 @@ echo
 echo C O M P L E T E D !
 echo                          
 echo  
+
 open /Applications/FortiClient.app
 sudo killall Terminal

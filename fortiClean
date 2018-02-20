@@ -24,7 +24,7 @@ countkForti=$(echo ${#Forti[*]})
 
 for (( i=0; i<$countkForti; i++ ));
 do
-    kill -9 ${Forti[$i]} > /dev/null 2>&1
+    sudo kill -9 ${Forti[$i]} > /dev/null 2>&1
 done
 
 sudo killall FortiClient > /dev/null 2>&1
@@ -72,5 +72,6 @@ sudo rm -rf /tmp/*.txt > /dev/null 2>&1
 echo
 echo            
 echo C O M P L E T E !
+
 open /Applications/FortiClient.app
 sudo killall Terminal

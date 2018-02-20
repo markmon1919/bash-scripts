@@ -20,7 +20,7 @@ countkSafari=$(echo ${#Safari[*]})
 
 for (( i=0; i<$countkSafari; i++ ));
 do
-    kill -9 ${Safari[$i]} > /dev/null 2>&1
+    sudo kill -9 ${Safari[$i]} > /dev/null 2>&1
 done
 
 echo Closing FortiClient...
@@ -28,7 +28,7 @@ countkForti=$(echo ${#Forti[*]})
 
 for (( i=0; i<$countkForti; i++ ));
 do
-    kill -9 ${Forti[$i]} > /dev/null 2>&1
+    sudo kill -9 ${Forti[$i]} > /dev/null 2>&1
 done
 
 sudo killall Safari > /dev/null 2>&1
@@ -50,6 +50,7 @@ sudo rm -rf ~/Library/Safari/* > /dev/null 2>&1
 sudo rm -rf ~/Library/Saved\ Application\ State/* > /dev/null 2>&1
 sudo rm -rf ~/Library/Preferences/com.apple.Safari* > /dev/null 2>&1
 sudo rm -rf ~/Library/Preferences/com.apple.Web* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/com.apple.commerce.safari* > /dev/null 2>&1
 sudo rm -rf ~/Library/PubSub/Database/* > /dev/null 2>&1
 echo Removing Temporary Files...
 sudo rm -rf ~/.temp* > /dev/null 2>&1
@@ -60,4 +61,5 @@ sudo rm -rf /tmp/*.txt > /dev/null 2>&1
 
 
 echo C O M P L E T E !
+
 sudo killall Terminal

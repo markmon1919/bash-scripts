@@ -290,7 +290,7 @@ else
    echo "Result is = POOR!"
 fi
 
-#sudo rm -rf /tmp/*.txt
+sudo rm -rf /tmp/*.txt
 echo    
 echo SPEED TEST...
 echo                    

@@ -35,7 +35,7 @@ done
 #rename white spaces in userList
 for (( i=1; i<=$countUser; i++ )); do
 if [[ "`cat /tmp/usrspace$i.txt`" =~ " " ]]; then
-    echo sudo mv "/Users/`cat /tmp/usrspace$i.txt`" "/Users/`cat /tmp/usrspace$i.txt | tr -d " "`"
+    sudo mv "/Users/`cat /tmp/usrspace$i.txt`" "/Users/`cat /tmp/usrspace$i.txt | tr -d " "`"
     sleep 2
 fi
 done
@@ -45,13 +45,13 @@ done
 for (( i=0; i<=$countAcc-1; i++ )); do
 if [[ "`cat /tmp/accspaceNFS$i.txt`" =~ " " ]]; then
     if [[ i -eq 0 ]]; then
-    dscl . -read /Users/${accList[$i]} NFSHomeDirectory | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -1 | sed '/^\s*$/d' > /tmp/whiteS.txt
-    dscl . -read /Users/${accList[$i]} RealName | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -1 | sed '/^\s*$/d' >> /tmp/whiteS.txt
-    dscl . -read /Users/${accList[$i]} RecordName | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -1 | sed '/^\s*$/d' >> /tmp/whiteS.txt
+    sudo dscl . -read /Users/${accList[$i]} NFSHomeDirectory | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -1 | sed '/^\s*$/d' > /tmp/whiteS.txt
+    sudo dscl . -read /Users/${accList[$i]} RealName | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -1 | sed '/^\s*$/d' >> /tmp/whiteS.txt
+    sudo dscl . -read /Users/${accList[$i]} RecordName | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -1 | sed '/^\s*$/d' >> /tmp/whiteS.txt
     else
-    dscl . -read /Users/${accList[$i]} NFSHomeDirectory | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -1 | sed '/^\s*$/d' >> /tmp/whiteS.txt
-    dscl . -read /Users/${accList[$i]} RealName | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -1 | sed '/^\s*$/d' >> /tmp/whiteS.txt
-    dscl . -read /Users/${accList[$i]} RecordName | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -1 | sed '/^\s*$/d' >> /tmp/whiteS.txt
+    sudo dscl . -read /Users/${accList[$i]} NFSHomeDirectory | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -1 | sed '/^\s*$/d' >> /tmp/whiteS.txt
+    sudo dscl . -read /Users/${accList[$i]} RealName | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -1 | sed '/^\s*$/d' >> /tmp/whiteS.txt
+    sudo dscl . -read /Users/${accList[$i]} RecordName | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -1 | sed '/^\s*$/d' >> /tmp/whiteS.txt
     fi
 fi
 done
@@ -69,16 +69,16 @@ declare -a isoRN=(`cat /tmp/isoRN.txt`)
  if [[ `cat /tmp/isoNFS.txt` =~ " " ]]; then
     cntisoNFS=$(echo `cat /tmp/isoNFS.txt | wc -l`)
     if [[ $cntisoNFS -le 1 ]]; then
-    echo sudo mv "`cat /tmp/isoNFS.txt | sed -n "$cntisoNFS"p`" "`cat /tmp/isoNFS.txt | sed -n "$cntisoNFS"p | tr -d " "`" 
+    sudo mv "`cat /tmp/isoNFS.txt | sed -n "$cntisoNFS"p`" "`cat /tmp/isoNFS.txt | sed -n "$cntisoNFS"p | tr -d " "`" 
     else
         for (( i=2; i<=$cntisoNFS; i++ )); do
-        echo sudo mv "`cat /tmp/isoNFS.txt | sed -n "$cntisoNFS"p`" "`cat /tmp/isoNFS.txt | sed -n "$cntisoNFS"p | tr -d " "`" 
+        sudo mv "`cat /tmp/isoNFS.txt | sed -n "$cntisoNFS"p`" "`cat /tmp/isoNFS.txt | sed -n "$cntisoNFS"p | tr -d " "`" 
         done
     fi
  fi
 
 #reload accList array
-dscl . -list /Users NFSHomeDirectory | grep ./Users | grep -v ./observe$ | grep -v ./admin$ | grep -v ./localadmin$ | grep -v ./cnxadmin$ | grep -v ./a$ | grep -v ./Shared$ | sed '/^\s*$/d' | awk '{print$1}' > /tmp/accList.txt
+sudo dscl . -list /Users NFSHomeDirectory | grep ./Users | grep -v ./observe$ | grep -v ./admin$ | grep -v ./localadmin$ | grep -v ./cnxadmin$ | grep -v ./a$ | grep -v ./Shared$ | sed '/^\s*$/d' | awk '{print$1}' > /tmp/accList.txt
 declare -a accList=(`cat /tmp/accList.txt`)
 
 #modify array for Users
@@ -89,9 +89,9 @@ declare -a userList=(`cat /tmp/userList.txt`)
 #modify array for Accounts
 for (( i=0; i<=$countAcc-1; i++ )); do
     if [[ i -eq 0 ]]; then
-    dscl . -read /Users/${accList[$i]} | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -3 | sed '/^\s*$/d' > /tmp/accList.txt
+    sudo dscl . -read /Users/${accList[$i]} | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -3 | sed '/^\s*$/d' > /tmp/accList.txt
     else
-    dscl . -read /Users/${accList[$i]} | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -3 | sed '/^\s*$/d' >> /tmp/accList.txt
+    sudo dscl . -read /Users/${accList[$i]} | tail -f -12 | grep -v Password | grep -v Picture | grep -v PrimaryGroupID | grep -v UniqueID | grep -v UserShell | grep -v RecordType | cut -d " " -f2,3 | grep -v RealName | grep -v NFS | tail -f -3 | sed '/^\s*$/d' >> /tmp/accList.txt
     fi
 done
 declare -a accList=(`cat /tmp/accList.txt`)
@@ -167,7 +167,7 @@ echo changing RecordName from "`cat /tmp/getRecN.txt`" to workathomeagent
 sudo dscl . -change /Users/"`cat /tmp/getRecN.txt`" RecordName "`cat /tmp/getRecN.txt`" workathomeagent
 sleep 2
 echo changing RealName from "`cat /tmp/getRN.txt`" to "WorkAtHomeAgent"
-echo dscl . -change /Users/"`cat /tmp/getRecN.txt`" RealName "`cat /tmp/getRN.txt`" "WorkAtHomeAgent"
+sudo dscl . -change /Users/"`cat /tmp/getRecN.txt`" RealName "`cat /tmp/getRN.txt`" "WorkAtHomeAgent"
 sleep 2
 echo                              
 echo Renaming /Users/"`cat /tmp/getRecN.txt`" to /Users/workathomeagent
@@ -178,7 +178,7 @@ echo Changing Ownership and Permissions...
 sudo chown -R workathomeagent /Users/workathomeagent
 sudo chmod -R 755 /Users/workathomeagent
 sleep 5
-#sudo rm -rf /tmp/*.txt > /dev/null 2>&1
+sudo rm -rf /tmp/*.txt > /dev/null 2>&1
 
 echo                    
 echo               

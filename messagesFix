@@ -2,25 +2,40 @@
 #	Created by Mark Mon Monteros 
 #	*** Messages Fix Script ***
 
-echo # Created by Mark Mon Monteros - WAH IT #
-
+echo "*** Messages Fix Script ***"
 echo 'Enter your local password: "concentrix"'
-killall Messages > /dev/null 2>&1
-sudo rm -rf /Library/Preferences/com.apple.iChat*
-sudo rm -rf /Library/Preferences/com.apple.imessage*
-sudo rm -rf ~/Library/Preferences/com.apple.iChat*
-sudo rm -rf ~/Library/Containers/com.apple.iChat*
-sudo rm -rf /Library/Containers/com.apple.iChat*
-sudo rm -rf ~/Library/Preferences/com.apple.imessage*
-sudo rm -rf ~/Library/Preferences/com.apple.imservice.iMessage.plist
-sudo rm -rf /Library/Preferences/com.apple.imservice.iMessage.plist
-sudo rm -rf ~/Library/Preferences/com.apple.imservice.ids.iMessage.plist
-sudo rm -rf /Library/Preferences/com.apple.imservice.ids.iMessage.plist
-sudo rm -rf ~/Library/Preferences/com.apple.ichat.plist
-sudo rm -rf /Library/Preferences/com.apple.ichat.plist
-sudo rm -rf ~/Library/Preferences/com.apple.imagent.plist
-sudo rm -rf /Library/Preferences/com.apple.imagent.plist
-sudo rm -rf ~/dscache
-sudo rm -rf /Library/Messages/*
-sudo rm -rf ~/Library/Messages/*
-killall Finder
+
+MessagesPS=$(ps aux | grep Messages | grep -v ttys | awk '{print $2}' > /tmp/MessagesPS.txt)
+declare Messages=(`cat /tmp/MessagesPS.txt`)
+
+echo Closing Messages...
+countkMessages=$(echo ${#Messages[*]})
+
+for (( i=0; i<$countkMessages; i++ ));
+do
+    sudo kill -9 ${Messages[$i]} > /dev/null 2>&1
+done
+
+sudo killall Messages > /dev/null 2>&1
+
+sudo rm -rf /Library/Preferences/com.apple.iChat* > /dev/null 2>&1
+sudo rm -rf /Library/Preferences/com.apple.imessage* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/com.apple.iChat* > /dev/null 2>&1
+sudo rm -rf ~/Library/Prererences/com.apple.Messages* > /dev/null 2>&1
+#sudo rm -rf ~/Library/Containers/com.apple.iChat* > /dev/null 2>&1
+#sudo rm -rf /Library/Containers/com.apple.iChat* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/com.apple.imessage* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/com.apple.imservice.iMessage* > /dev/null 2>&1
+sudo rm -rf /Library/Preferences/com.apple.imservice.iMessage* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/com.apple.imservice.ids.iMessage* > /dev/null 2>&1
+sudo rm -rf /Library/Preferences/com.apple.imservice.ids.iMessage* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/com.apple.ichat* > /dev/null 2>&1
+sudo rm -rf /Library/Preferences/com.apple.ichat* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/com.apple.imagent.plist > /dev/null 2>&1
+sudo rm -rf /Library/Preferences/com.apple.imagent.plist > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/ByHost/com.apple.imservice.ids.iMessage* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/ByHost/com.apple.iChat* > /dev/null 2>&1
+#sudo rm -rf ~/dscache > /dev/null 2>&1
+#sudo rm -rf /Library/Messages/* > /dev/null 2>&1
+#sudo rm -rf ~/Library/Messages/* > /dev/null 2>&1
+sudo killall Finder > /dev/null 2>&1

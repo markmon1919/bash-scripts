@@ -18,7 +18,7 @@ countkSafari=$(echo ${#Safari[*]})
 
 for (( i=0; i<$countkSafari; i++ ));
 do
-    kill -9 ${Safari[$i]} > /dev/null 2>&1
+    sudo kill -9 ${Safari[$i]} > /dev/null 2>&1
 done
 
 echo Hang-Up mDNSResponder...
@@ -31,6 +31,8 @@ sudo rm -rf /Library/Java* > /dev/null 2>&1
 sudo rm -rf /Library/Internet \Plug \Ins/Java* > /dev/null 2>&1
 sudo rm -rf ~/Library/Oracle* > /dev/null 2>&1
 sudo rm -rf ~/Library/Preferences/com.oracle* > /dev/null 2>&1
+sudo rm -rf /Library/Internet\ Plug-Ins/Java*
+sudo rm -rf ~/Library/Application\ Support/Oracle*
 echo Clearing CACHES...
 sudo rm -rf /System/Library/Caches/* > /dev/null 2>&1
 sudo rm -rf /Library/Caches/* > /dev/null 2>&1
@@ -48,18 +50,27 @@ echo Removing Temporary Files...
 sudo rm -rf ~/.temp* > /dev/null 2>&1
 sleep 3
 echo Restoring Safari Bookmarks...
-mv ~/Desktop/Bookmarks.plist ~/Library/Safari/
+sudo mv ~/Desktop/Bookmarks.plist ~/Library/Safari/
 echo Disabling Safari Pop-ups...
 open -g -a Safari
-killall Safari
 sleep 1
+
 WHO=$(whoami > /tmp/whoami.txt)
 WHOAMI=$(cat /tmp/whoami.txt)
 HOMEDIR=$(dscl . -read /Users/"$WHOAMI" NFSHomeDirectory | awk '{print$2}')
 LIB=$(echo /Library/Preferences/com.apple.Safari.plist)
 WRITE=$(echo $HOMEDIR$LIB)
-defaults write $WRITE com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaScriptCanOpenWindowsAutomatically "1"
+sudo killall Safari
+
+
+chmod 644 $WRITE
+sleep 2
+function writeplist() {
+defaults write $WRITE com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaScriptCanOpenWindowsAutomatically "<true />"
+}
 sleep 1
+writeplist
+
 echo Please download Java Runtime Environment Plugin...
 open -a Safari -g http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html
 
