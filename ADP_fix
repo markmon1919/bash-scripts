@@ -9,7 +9,7 @@ echo Flushing DNS . . .
 
 mDNS1=$(pgrep mDNSResponder | sed -n 1p)
 mDNS2=$(pgrep mDNSResponder | sed -n 2p)
-SafariPS=$(ps aux | grep Safari | grep -v ttys | awk '{print $2}' > /tmp/SafariPS.txt)
+SafariPS=$(ps aux | grep -i Safari | grep -v ttys | awk '{print $2}' > /tmp/SafariPS.txt)
 
 declare Safari=(`cat /tmp/SafariPS.txt`)
 

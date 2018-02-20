@@ -9,12 +9,12 @@ echo Flushing DNS . . .
 
 mDNS1=$(pgrep mDNSResponder | sed -n 1p)
 mDNS2=$(pgrep mDNSResponder | sed -n 2p)
-SafariPS=$(ps aux | grep Safari | grep -v ttys | awk '{print $2}' > /tmp/SafariPS.txt)
-SafeViewPS=$(ps aux | grep SafeView | grep -v ttys | awk '{print $2}' > /tmp/SafeViewPS.txt)
-iLogPS=$(ps aux | grep iLog | grep -v ttys | awk '{print $2}' > /tmp/iLogPS.txt)
-ApplePS=$(ps aux | grep Apple | grep -v ttys | awk '{print $2}' > /tmp/ApplePS.txt)
-AvalonPS=$(ps aux | grep Avalon | grep -v ttys | awk '{print $2}' > /tmp/AvalonPS.txt)
-FortiPS=$(ps aux | grep Forti | grep -v ttys | awk '{print $2}' > /tmp/FortiPS.txt)
+SafariPS=$(ps aux | grep -i Safari | grep -v ttys | awk '{print $2}' > /tmp/SafariPS.txt)
+SafeViewPS=$(ps aux | grep -i SafeView | grep -v ttys | awk '{print $2}' > /tmp/SafeViewPS.txt)
+iLogPS=$(ps aux | grep -i iLog | grep -v ttys | awk '{print $2}' > /tmp/iLogPS.txt)
+ApplePS=$(ps aux | grep -i Apple | grep -v ttys | awk '{print $2}' > /tmp/ApplePS.txt)
+AvalonPS=$(ps aux | grep -i Avalon | grep -v ttys | awk '{print $2}' > /tmp/AvalonPS.txt)
+FortiPS=$(ps aux | grep -i Forti | grep -v ttys | awk '{print $2}' > /tmp/FortiPS.txt)
 
 declare Safari=(`cat /tmp/SafariPS.txt`)
 declare SafeView=(`cat /tmp/SafeViewPS.txt`)

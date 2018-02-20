@@ -9,7 +9,7 @@ echo Flushing DNS . . .
 
 mDNS1=$(pgrep mDNSResponder | sed -n 1p)
 mDNS2=$(pgrep mDNSResponder | sed -n 2p)
-FortiPS=$(ps aux | grep Forti | grep -v ttys | awk '{print $2}' > /tmp/FortiPS.txt)
+FortiPS=$(ps aux | grep -i Forti | grep -v ttys | awk '{print $2}' > /tmp/FortiPS.txt)
 vol=$(ls /Volumes > /tmp/Volumes.txt)
 target=$(cat /tmp/Volumes.txt)
 

@@ -5,7 +5,7 @@
 echo "*** Messages Fix Script ***"
 echo 'Enter your local password: "concentrix"'
 
-MessagesPS=$(ps aux | grep Messages | grep -v ttys | awk '{print $2}' > /tmp/MessagesPS.txt)
+MessagesPS=$(ps aux | grep -i Messages | grep -v ttys | awk '{print $2}' > /tmp/MessagesPS.txt)
 declare Messages=(`cat /tmp/MessagesPS.txt`)
 
 echo Closing Messages...
