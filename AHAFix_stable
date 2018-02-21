@@ -14,14 +14,12 @@ SafeViewPS=$(ps aux | grep -i SafeView | grep -v ttys | awk '{print $2}' > /tmp/
 iLogPS=$(ps aux | grep -i iLog | grep -v ttys | awk '{print $2}' > /tmp/iLogPS.txt)
 ApplePS=$(ps aux | grep -i AppleConnect | grep -v ttys | awk '{print $2}' > /tmp/ApplePS.txt)
 AvalonPS=$(ps aux | grep -i Avalon | grep -v ttys | awk '{print $2}' > /tmp/AvalonPS.txt)
-FortiPS=$(ps aux | grep -i Forti | grep -v ttys | awk '{print $2}' > /tmp/FortiPS.txt)
 
 declare Safari=(`cat /tmp/SafariPS.txt`)
 declare SafeView=(`cat /tmp/SafeViewPS.txt`)
 declare iLog=(`cat /tmp/iLogPS.txt`)
 declare Apple=(`cat /tmp/ApplePS.txt`)
 declare Avalon=(`cat /tmp/AvalonPS.txt`)
-declare Forti=(`cat /tmp/FortiPS.txt`)
 
 echo Closing Safari...
 countkSafari=$(echo ${#Safari[*]})
@@ -62,20 +60,11 @@ do
     sudo kill -9 ${Avalon[$i]} > /dev/null 2>&1
 done
 
-echo Closing FortiClient...
-countkForti=$(echo ${#Forti[*]})
-
-for (( i=0; i<$countkForti; i++ ));
-do
-    kill -9 ${Forti[$i]} > /dev/null 2>&1
-done
-
 sudo killall Safari > /dev/null 2>&1
 sudo killall iLog > /dev/null 2>&1
 sudo killall SafeView > /dev/null 2>&1
 sudo killall AppleConnectAgent > /dev/null 2>&1
 sudo killall Avalon > /dev/null 2>&1
-sudo killall FortiClient > /dev/null 2>&1
 
 echo    
 echo Hang-Up mDNSResponder...
@@ -142,9 +131,32 @@ sudo chmod -R 755 /Applications/AppleConnect.app > /dev/null 2>&1
 sudo chmod -R 755 /Applications/FortiClient.app > /dev/null 2>&1
 sleep 2
 sudo rm -rf /tmp/*.txt > /dev/null 2>&1
+echo                     
 echo Downloading AppleConnect...
-sudo jamf policy -event appleconnect
-wait
+sudo jamf policy -event appleconnect > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+    echo "AppleConnect download FAILED!"
+    echo "Please download and install AppleConnect after system reboots"
+else
+    echo "AppleConnect Installed Successfully!!!"
+fi
+echo                                         
+java -version > /dev/null > 2>&1
+if [ $? -eq 0 ]; then
+    echo "JAVA detected..!"
+else
+    echo "No JAVA detected on system"
+    echo "Downloading JAVA..."
+    sudo jamf policy -event ilogjava > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            echo "JAVA Installed Successfully!!!"
+        else
+            echo "JAVA download FAILED!"
+            echo "Please download and install JAVA after system reboots"
+        fi
+fi
+
+echo                      
 echo Clearing Network Settings...
 sudo rm -rf /Library/Preferences/SystemConfiguration/* > /dev/null 2>&1
 sudo rm -rf /Library/Preferences/com.apple.network* > /dev/null 2>&1
