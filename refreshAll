@@ -23,7 +23,7 @@ declare iLog=(`cat /tmp/iLogPS.txt`)
 declare Apple=(`cat /tmp/ApplePS.txt`)
 declare Avalon=(`cat /tmp/AvalonPS.txt`)
 declare Adobe=(`cat /tmp/AdobePS.txt`)
-declare Forti=(`cat /tmp/FortiPS.txt`)
+declare FClient=(`cat /tmp/FortiPS.txt`)
 
 echo Closing Safari...
 countkSafari=$(echo ${#Safari[*]})
@@ -77,7 +77,7 @@ countkForti=$(echo ${#Forti[*]})
 
 for (( i=0; i<$countkForti; i++ ));
 do
-    sudo kill -9 ${Forti[$i]} > /dev/null 2>&1
+    sudo kill -9 ${FClient[$i]} > /dev/null 2>&1
 done
 
 sudo killall Safari > /dev/null 2>&1

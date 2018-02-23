@@ -11,7 +11,7 @@ mDNS1=$(pgrep mDNSResponder | sed -n 1p)
 mDNS2=$(pgrep mDNSResponder | sed -n 2p)
 FortiPS=$(ps aux | grep -i Forti | grep -v ttys | awk '{print $2}' > /tmp/FortiPS.txt)
 
-declare Forti=(`cat /tmp/FortiPS.txt`)
+declare FClient=(`cat /tmp/FortiPS.txt`)
 
 sudo tar -cf ~/Desktop/Forti.bak /Library/Application\ Support/Fortinet/FortiClient/conf/vpn.plist
 echo Backing-up FortiClient profile...
@@ -22,7 +22,7 @@ countkForti=$(echo ${#Forti[*]})
 
 for (( i=0; i<$countkForti; i++ ));
 do
-    sudo kill -9 ${Forti[$i]} > /dev/null 2>&1
+    sudo kill -9 ${FClient[$i]} > /dev/null 2>&1
 done
 
 sudo killall FortiClient > /dev/null 2>&1
@@ -36,10 +36,7 @@ sudo rm -rf /Library/LaunchDaemons/com.forti* > /dev/null 2>&1
 sudo rm -rf /Library/LaunchAgents/com.forti* > /dev/null 2>&1
 echo Removing all FortiClient libraries...
 sudo rm -rf ~/Library/Application\ Support/Forti* > /dev/null 2>&1
-sudo rm -rf /Library/Application\ Support/Fortinet/FortiClient/Logs > /dev/null 2>&1
-sudo rm -rf /Library/Application\ Support/Fortinet/FortiClient/data > /dev/null 2>&1
-sudo rm -rf /Library/Application\ Support/Fortinet/FortiClient/ipsec > /dev/null 2>&1
-sudo rm -rf /Library/Application\ Support/Fortinet/FortiClient/tmp > /dev/null 2>&1
+sudo rm -rf /Library/Application\ Support/Forti* > /dev/null 2>&1
 echo Removing all FortiClient settings...
 sudo rm -rf ~/Library/Application\ Support/com.forti* > /dev/null 2>&1
 sudo rm -rf /Library/Application\ Support/com.forti* > /dev/null 2>&1
@@ -54,6 +51,33 @@ sudo rm -rf ~/Library/Caches/* > /dev/null 2>&1
 sudo rm -rf /System/Library/CacheDelete/* > /dev/null 2>&1
 echo Removing Temporary Files...
 sudo rm -rf ~/.temp* > /dev/null 2>&1
+echo                     
+echo Downloading FortiClient...
+sudo jamf policy -event forticlient > /tmp/fortiDL.txt
+fortiDL=$(cat /tmp/fortiDL.txt | sed -n 2p | awk '{print$1}')
+if [[ $fortiDL == "Executing" ]]; then
+    echo "FortiClient Installed Successfully!!!"
+else 
+	echo "JAMF link is down redirecting to forticlient.com..."
+	echo                                  
+	cd ~/Desktop
+	curl -O https://d3gpjj9d20n0p3.cloudfront.net/forticlient/downloads/FortiClient_5.6.1.723_macosx.dmg
+	echo Download Complete...
+	echo Mounting Disk Image...
+	ls /Volumes | cut -d @ -f1 > /tmp/Volumes.txt
+	target=$(cat /tmp/Volumes.txt)
+	sudo hdiutil mount ~/Desktop/FortiClient_5.6.1.723_macosx.dmg
+	sleep 2
+	echo Installing FortiClient...
+	sudo installer -pkg /Volumes/FortiClient/Install.mpkg -tgt /Volumes/"$target"
+	echo Unmounting Disk Image...
+	sudo hdiutil unmount /Volumes/FortiClient
+	sleep 2
+	echo sudo rm -rf ~/Desktop/FortiClient_5.6.1.723_macosx.dmg
+fi
+sudo killall FortiClient > /dev/null 2>&1
+
+echo                 
 echo Importing FortiClient profile...
 sudo tar -xf ~/Desktop/Forti.bak -C /
 sleep 5
@@ -64,6 +88,7 @@ sudo chown -R root:wheel /Applications/FortiClient.app > /dev/null 2>&1
 sleep 1
 echo Changing Permissions...
 sudo chmod -R 755 /Applications/FortiClient.app > /dev/null 2>&1
+
 sudo rm -rf /tmp/*.txt > /dev/null 2>&1
 
 echo           
@@ -71,5 +96,33 @@ echo C O M P L E T E D !
 echo                          
 echo  
 
-open /Applications/FortiClient.app
-sudo killall Terminal
+open /Applications/FortiClient.app > /dev/null 2>&1
+if [[ $? -ne 0 ]]; then
+	function error() {
+	sudo touch error.py
+	sudo chmod 777 error.py
+	echo '#!/usr/bin/python' >> error.py
+	echo 'from Tkinter import *' >> error.py
+	echo 'import tkMessageBox' >> error.py
+	echo 'root = Tk()' >> error.py
+	echo 'root.withdraw()' >> error.py
+	echo 'tkMessageBox.showerror(title="Error!", message="FortiClient download FAILED!\n\nPlease download and install FortiClient manually.")' >> error.py
+	}
+	error
+	sudo ./error.py > /dev/null 2>&1
+fi
+
+sudo rm -rf error.py
+echo Closing Terminal in 5 secs...
+for (( i=5; i>=1; i-- ));
+do
+    if [[ i -eq 1 ]]; then
+        echo
+        echo closing NOW.. !
+        echo            
+        sudo killall Terminal
+    else
+        echo $i..
+        sleep 1
+    fi
+done

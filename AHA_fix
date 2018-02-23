@@ -130,32 +130,40 @@ sudo chmod -R 755 /Applications/iLog.app > /dev/null 2>&1
 sudo chmod -R 755 /Applications/AppleConnect.app > /dev/null 2>&1
 sudo chmod -R 755 /Applications/FortiClient.app > /dev/null 2>&1
 sleep 2
-sudo rm -rf /tmp/*.txt > /dev/null 2>&1
+
 echo                     
 echo Downloading AppleConnect...
-sudo jamf policy -event appleconnect > /dev/null 2>&1
-if [ $? -eq 0 ]; then
-    echo "AppleConnect download FAILED!"
-    echo "Please download and install AppleConnect after system reboots"
-else
+sudo jamf policy -event appleconnect > /tmp/appleDL.txt
+appleDL=$(cat /tmp/appleDL.txt | sed -n 2p | awk '{print$1}')
+if [[ $appleDL == "Executing" ]]; then
     echo "AppleConnect Installed Successfully!!!"
-fi
-echo                                         
-java -version > /dev/null > 2>&1
-if [ $? -eq 0 ]; then
-    echo "JAVA detected..!"
 else
-    echo "No JAVA detected on system"
+    echo "AppleConnect Download FAILED!"
+fi
+sudo killall AppleConnect > /dev/null 2>&1
+
+echo          
+echo Checking JAVA on system...                               
+java -version > /dev/null 2>&1
+echo $? > /tmp/javaVER.txt
+javaVER=$(cat /tmp/javaVER.txt)
+if [[ $javaVER -eq 0 ]]; then
+    echo "JAVA Detected..!"
+else
+    echo "No JAVA detected"
     echo "Downloading JAVA..."
-    sudo jamf policy -event ilogjava > /dev/null 2>&1
-        if [ $? -eq 0 ]; then
+    sudo jamf policy -event ilogjava > /tmp/javaDL.txt
+    javaDL=$(cat /tmp/javaDL.txt | sed -n 2p | awk '{print$1}')
+        if [[ $javaDL == "Executing" ]]; then
             echo "JAVA Installed Successfully!!!"
         else
-            echo "JAVA download FAILED!"
-            echo "Please download and install JAVA after system reboots"
+            echo "JAVA Download FAILED!"
         fi
 fi
+javakill=$(pgrep -i java | grep -v ttys)
+sudo kill -9 $javakill > /dev/null 2>&1
 
+sleep 3
 echo                      
 echo Clearing Network Settings...
 sudo rm -rf /Library/Preferences/SystemConfiguration/* > /dev/null 2>&1
@@ -163,6 +171,48 @@ sudo rm -rf /Library/Preferences/com.apple.network* > /dev/null 2>&1
 sudo rm -rf /Library/Preferences/P2P* > /dev/null 2>&1
 sudo rm -rf /System/Library/NetworkServiceProxy/* > /dev/null 2>&1
 
+open -g /Applications/AppleConnect.app > /dev/null 2>&1
+echo $? > /tmp/appctest.txt
+sudo killall AppleConnect > /dev/null 2>&1
+appctest=$(cat /tmp/appctest.txt)
+if [[ $appctest -ne 0 ]]; then
+    function appcerror() {
+    sudo touch appcerror.py
+    sudo chmod 777 appcerror.py
+    echo '#!/usr/bin/python' >> appcerror.py
+    echo 'from Tkinter import *' >> appcerror.py
+    echo 'import tkMessageBox' >> appcerror.py
+    echo 'root = Tk()' >> appcerror.py
+    echo 'root.withdraw()' >> appcerror.py
+    echo 'tkMessageBox.showerror(title="Error!", message="AppleConnect download FAILED!\n\nPlease download and install AppleConnect manually.")' >> appcerror.py
+    }
+    appcerror
+    sudo ./appcerror.py > /dev/null 2>&1
+fi
+sudo rm -rf appcerror.py > /dev/null 2>&1
+
+java -version
+echo $? > /tmp/javatest.txt
+javakill=$(pgrep -i java | grep -v ttys)
+sudo kill -9 $javakill > /dev/null 2>&1
+javatest=$(cat /tmp/javatest.txt)
+if [[ $javatest -ne 0 ]]; then
+    function javaerror() {
+    sudo touch javaerror.py
+    sudo chmod 777 javaerror.py
+    echo '#!/usr/bin/python' >> javaerror.py
+    echo 'from Tkinter import *' >> javaerror.py
+    echo 'import tkMessageBox' >> javaerror.py
+    echo 'root = Tk()' >> javaerror.py
+    echo 'root.withdraw()' >> javaerror.py
+    echo 'tkMessageBox.showerror(title="Error!", message="JAVA download FAILED!\n\nPlease download and install JAVA manually.")' >> javaerror.py
+    }
+    javaerror
+    sudo ./javaerror.py > /dev/null 2>&1
+fi
+sudo rm -rf javaerror.py > /dev/null 2>&1
+
+sudo rm -rf /tmp/*.txt > /dev/null 2>&1
 echo
 echo              
 echo C O M P L E T E D !
@@ -180,6 +230,8 @@ do
     else
         echo $i..
         sleep 1
+        javakill=$(pgrep -i java | grep -v ttys)
+        sudo kill -9 $javakill > /dev/null 2>&1
     fi
 done
 

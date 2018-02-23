@@ -63,7 +63,7 @@ WRITE=$(echo $HOMEDIR$LIB)
 sudo killall Safari
 
 
-chmod 644 $WRITE
+chmod 777 $WRITE
 sleep 2
 function writeplist() {
 defaults write $WRITE com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaScriptCanOpenWindowsAutomatically "<true />"
