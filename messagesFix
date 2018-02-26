@@ -6,36 +6,57 @@ echo "*** Messages Fix Script ***"
 echo 'Enter your local password: "concentrix"'
 
 MessagesPS=$(ps aux | grep -i Messages | grep -v ttys | awk '{print $2}' > /tmp/MessagesPS.txt)
-declare Messages=(`cat /tmp/MessagesPS.txt`)
+declare iMessage=(`cat /tmp/MessagesPS.txt`)
 
 echo Closing Messages...
 countkMessages=$(echo ${#Messages[*]})
 
 for (( i=0; i<$countkMessages; i++ ));
 do
-    sudo kill -9 ${Messages[$i]} > /dev/null 2>&1
+    sudo kill -9 ${iMessage[$i]} > /dev/null 2>&1
 done
 
 sudo killall Messages > /dev/null 2>&1
 
 sudo rm -rf /Library/Preferences/com.apple.iChat* > /dev/null 2>&1
 sudo rm -rf /Library/Preferences/com.apple.imessage* > /dev/null 2>&1
-sudo rm -rf ~/Library/Preferences/com.apple.iChat* > /dev/null 2>&1
-sudo rm -rf ~/Library/Prererences/com.apple.Messages* > /dev/null 2>&1
-#sudo rm -rf ~/Library/Containers/com.apple.iChat* > /dev/null 2>&1
-#sudo rm -rf /Library/Containers/com.apple.iChat* > /dev/null 2>&1
-sudo rm -rf ~/Library/Preferences/com.apple.imessage* > /dev/null 2>&1
-sudo rm -rf ~/Library/Preferences/com.apple.imservice.iMessage* > /dev/null 2>&1
+sudo rm -rf /Library/Preferences/com.apple.Messages* > /dev/null 2>&1
 sudo rm -rf /Library/Preferences/com.apple.imservice.iMessage* > /dev/null 2>&1
-sudo rm -rf ~/Library/Preferences/com.apple.imservice.ids.iMessage* > /dev/null 2>&1
 sudo rm -rf /Library/Preferences/com.apple.imservice.ids.iMessage* > /dev/null 2>&1
-sudo rm -rf ~/Library/Preferences/com.apple.ichat* > /dev/null 2>&1
 sudo rm -rf /Library/Preferences/com.apple.ichat* > /dev/null 2>&1
-sudo rm -rf ~/Library/Preferences/com.apple.imagent.plist > /dev/null 2>&1
 sudo rm -rf /Library/Preferences/com.apple.imagent.plist > /dev/null 2>&1
-sudo rm -rf ~/Library/Preferences/ByHost/com.apple.imservice.ids.iMessage* > /dev/null 2>&1
+
+sudo rm -rf ~/Library/Preferences/com.apple.iChat* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/com.apple.imessage* > /dev/null 2>&1
+sudo rm -rf ~/Library/Prererences/com.apple.Messages* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/com.apple.imservice.iMessage* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/com.apple.imservice.ids.iMessage* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/com.apple.ichat* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/com.apple.imagent.plist > /dev/null 2>&1
+
 sudo rm -rf ~/Library/Preferences/ByHost/com.apple.iChat* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/ByHost/com.apple.imessage* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/ByHost/com.apple.Messages* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/ByHost/com.apple.imservice.ids.iMessage* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/ByHost/com.apple.imservice.iMessage* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/ByHost/com.apple.ichat* > /dev/null 2>&1
+sudo rm -rf ~/Library/Preferences/ByHost/com.apple.imagent.plist > /dev/null 2>&1
+
 #sudo rm -rf ~/dscache > /dev/null 2>&1
 #sudo rm -rf /Library/Messages/* > /dev/null 2>&1
 #sudo rm -rf ~/Library/Messages/* > /dev/null 2>&1
 sudo killall Finder > /dev/null 2>&1
+
+echo Closing Terminal in 5 secs...
+for (( i=5; i>=1; i-- ));
+do
+    if [[ i -eq 1 ]]; then
+        echo
+        echo closing NOW.. !
+        echo            
+        sudo killall Terminal
+    else
+        echo $i..
+        sleep 1
+    fi
+done
