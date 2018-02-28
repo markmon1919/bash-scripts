@@ -11,14 +11,14 @@ mDNS1=$(pgrep mDNSResponder | sed -n 1p)
 mDNS2=$(pgrep mDNSResponder | sed -n 2p)
 SafariPS=$(ps aux | grep -i Safari | grep -v ttys | awk '{print $2}' > /tmp/SafariPS.txt)
 
-declare Safari=(`cat /tmp/SafariPS.txt`)
+declare Sfari=(`cat /tmp/SafariPS.txt`)
 
 echo Closing Safari...
-countkSafari=$(echo ${#Safari[*]})
+countkSafari=$(echo ${#Sfari[*]})
 
 for (( i=0; i<$countkSafari; i++ ));
 do
-    sudo kill -9 ${Safari[$i]} > /dev/null 2>&1
+    sudo kill -9 ${Sfari[$i]} > /dev/null 2>&1
 done
 
 echo Hang-Up mDNSResponder...

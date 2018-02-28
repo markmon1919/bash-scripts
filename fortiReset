@@ -18,7 +18,7 @@ echo Backing-up FortiClient profile...
 sleep 2
 
 echo Closing FortiClient...
-countkForti=$(echo ${#Forti[*]})
+countkForti=$(echo ${#FClient[*]})
 
 for (( i=0; i<$countkForti; i++ ));
 do
@@ -64,7 +64,7 @@ else
 	curl -O https://d3gpjj9d20n0p3.cloudfront.net/forticlient/downloads/FortiClient_5.6.1.723_macosx.dmg
 	echo Download Complete...
 	echo Mounting Disk Image...
-	ls /Volumes | cut -d @ -f1 > /tmp/Volumes.txt
+	ls /Volumes | cut -d @ -f1 | sed -n 1p > /tmp/Volumes.txt
 	target=$(cat /tmp/Volumes.txt)
 	sudo hdiutil mount ~/Desktop/FortiClient_5.6.1.723_macosx.dmg
 	sleep 2

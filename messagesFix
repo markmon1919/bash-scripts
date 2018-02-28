@@ -18,6 +18,10 @@ done
 
 sudo killall Messages > /dev/null 2>&1
 
+sudo rm -rf /System/Library/Caches/* > /dev/null 2>&1
+sudo rm -rf /Library/Caches/* > /dev/null 2>&1
+sudo rm -rf ~/Library/Caches/* > /dev/null 2>&1
+
 sudo rm -rf /Library/Preferences/com.apple.iChat* > /dev/null 2>&1
 sudo rm -rf /Library/Preferences/com.apple.imessage* > /dev/null 2>&1
 sudo rm -rf /Library/Preferences/com.apple.Messages* > /dev/null 2>&1
