@@ -7,68 +7,55 @@ echo 'Enter your local password: "concentrix"'
 sudo dscacheutil -flushcache
 echo Flushing DNS . . .
 
-mDNS1=$(pgrep mDNSResponder | sed -n 1p)
-mDNS2=$(pgrep mDNSResponder | sed -n 2p)
-SafariPS=$(ps aux | grep -i Safari | grep -v ttys | awk '{print $2}' > /tmp/SafariPS.txt)
-SafeViewPS=$(ps aux | grep -i SafeView | grep -v ttys | awk '{print $2}' > /tmp/SafeViewPS.txt)
-iLogPS=$(ps aux | grep -i iLog | grep -v ttys | awk '{print $2}' > /tmp/iLogPS.txt)
-ApplePS=$(ps aux | grep -i AppleConnect | grep -v ttys | awk '{print $2}' > /tmp/ApplePS.txt)
-AvalonPS=$(ps aux | grep -i Avalon | grep -v ttys | awk '{print $2}' > /tmp/AvalonPS.txt)
-
-declare Sfari=(`cat /tmp/SafariPS.txt`)
-declare SafeView=(`cat /tmp/SafeViewPS.txt`)
-declare iLog=(`cat /tmp/iLogPS.txt`)
-declare Apple=(`cat /tmp/ApplePS.txt`)
-declare Avalon=(`cat /tmp/AvalonPS.txt`)
+declare mDNS=(`ps -ax | grep -i mDNSResponder | grep -v ttys | awk '{print$1}'`)
+declare Sfari=(`ps -ax | grep -i Safari | grep -v ttys | awk '{print $1}'`)
+declare SafeView=(`ps -ax | grep -i SafeView | grep -v ttys | awk '{print $1}'`)
+declare iLog=(`ps -ax | grep -i iLog | grep -v ttys | awk '{print $1}'`)
+declare Apple=(`ps -ax | grep -i AppleConnect | grep -v ttys | awk '{print $1}'`)
+declare Avalon=(`ps -ax | grep -i Avalon | grep -v ttys | awk '{print $1}'`)
 
 echo Closing Safari...
-countkSafari=$(echo ${#Sfari[*]})
-
-for (( i=0; i<$countkSafari; i++ ));
+for (( i=0; i<${#Sfari[*]}; i++ ));
 do
     sudo kill -9 ${Sfari[$i]} > /dev/null 2>&1
 done
+sudo killall Safari > /dev/null 2>&1
 
 echo Closing SafeView...
-countkSafeView=$(echo ${#SafeView[*]})
-
-for (( i=0; i<$countkSafeView; i++ ));
+for (( i=0; i<${#SafeView[*]}; i++ ));
 do
     sudo kill -9 ${SafeView[$i]} > /dev/null 2>&1
 done
+sudo killall SafeView > /dev/null 2>&1
 
 echo Closing iLog...
-countkiLog=$(echo ${#iLog[*]})
-
-for (( i=0; i<$countkiLog; i++ ));
+for (( i=0; i<${#iLog[*]}; i++ ));
 do
     sudo kill -9 ${iLog[$i]} > /dev/null 2>&1
 done
+sudo killall iLog > /dev/null 2>&1
 
 echo Closing AppleConnect...
-countkApple=$(echo ${#Apple[*]})
-
-for (( i=0; i<$countkApple; i++ ));
+for (( i=0; i<${#Apple[*]}; i++ ));
 do
     sudo kill -9 ${Apple[$i]} > /dev/null 2>&1
 done
-echo Closing Avalon...
-countkAvalon=$(echo ${#Avalon[*]})
+sudo killall AppleConnectAgent > /dev/null 2>&1
 
-for (( i=0; i<$countkAvalon; i++ ));
+echo Closing Avalon...
+for (( i=0; i<${#Avalon[*]}; i++ ));
 do
     sudo kill -9 ${Avalon[$i]} > /dev/null 2>&1
 done
-
-sudo killall Safari > /dev/null 2>&1
-sudo killall iLog > /dev/null 2>&1
-sudo killall SafeView > /dev/null 2>&1
-sudo killall AppleConnectAgent > /dev/null 2>&1
 sudo killall Avalon > /dev/null 2>&1
 
-echo    
 echo Hang-Up mDNSResponder...
-sudo kill -HUP $mDNS1 $mDNS2 > /dev/null 2>&1
+for (( i=0; i<${#mDNS[*]}; i++ ));
+do
+    sudo kill -HUP ${mDNS[$i]} > /dev/null 2>&1
+done
+
+echo                 
 echo Backing Up Safari Bookmarks...
 sudo cp -R ~/Library/Safari/Bookmarks.plist ~/Desktop
 echo Clearing CACHES...
@@ -220,7 +207,7 @@ if [[ $javaVER -eq 0 ]]; then
 else
     echo "No JAVA detected"
     echo "Downloading JAVA..."
-    sudo jamf policy -event safejava > /tmp/javaDL.txt
+    sudo jamf policy -event ilogjava > /tmp/javaDL.txt
     javaDL=$(cat /tmp/javaDL.txt | sed -n 2p | awk '{print$1}')
         if [[ $javaDL == "Executing" ]]; then
             echo "JAVA Installed Successfully!!!"

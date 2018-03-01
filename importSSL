@@ -2,8 +2,7 @@
 #Created by Mark Mon Monteros
 #	*** SSL Import Script ***
 
-
-
+echo "*** SSL Import Script ***"
 echo 'Enter your local password: "concentrix"'
 cd ~/Downloads
 cert=$(ls -lt | grep .cer | sed -n 1p | awk '{print$9}')
@@ -28,7 +27,21 @@ echo
 echo Note: If issue persist, please re-install FortiClient in Self-Service.
 echo
 
-
 echo C O M P L E T E D !
 echo                     
 open /Applications/FortiClient.app
+  
+echo  
+echo Closing Terminal in 5 secs...
+for (( i=5; i>=1; i-- ));
+do
+    if [[ i -eq 1 ]]; then
+        echo
+        echo closing NOW.. !
+        echo            
+        sudo killall Terminal
+    else
+        echo $i..
+        sleep 1
+    fi
+done

@@ -7,47 +7,39 @@ echo 'Enter your local password: "concentrix"'
 sudo dscacheutil -flushcache
 echo Flushing DNS . . .
 
-mDNS1=$(pgrep mDNSResponder | sed -n 1p)
-mDNS2=$(pgrep mDNSResponder | sed -n 2p)
-SafariPS=$(ps aux | grep -i Safari | grep -v ttys | awk '{print $2}' > /tmp/SafariPS.txt)
-AdobePS=$(ps aux | grep -i Adobe | grep -v ttys | awk '{print $2}' > /tmp/AdobePS.txt)
-FortiPS=$(ps aux | grep -i Forti | grep -v ttys | awk '{print $2}' > /tmp/FortiPS.txt)
-
-declare Sfari=(`cat /tmp/SafariPS.txt`)
-declare AdobeC=(`cat /tmp/AdobePS.txt`)
-declare FClient=(`cat /tmp/FortiPS.txt`)
+declare mDNS=(`ps -ax | grep -i mDNSResponder | grep -v ttys | awk '{print$1}'`)
+declare Sfari=(`ps -ax | grep -i Safari | grep -v ttys | awk '{print $1}'`)
+declare AdobeC=(`ps -ax | grep -i Adobe | grep -v ttys | awk '{print $1}'`)
+declare FClient=(`ps -ax | grep -i Forti | grep -v ttys | awk '{print $1}'`)
 
 echo Closing Safari...
-countkSafari=$(echo ${#Sfari[*]})
-
-for (( i=0; i<$countkSafari; i++ ));
+for (( i=0; i<${#Sfari[*]}; i++ ));
 do
     sudo kill -9 ${Sfari[$i]} > /dev/null 2>&1
 done
+sudo killall Safari > /dev/null 2>&1
 
 echo Closing Adobe Connect...
-countkAdobeC=$(echo ${#AdobeC[*]})
-
-for (( i=0; i<$countkAdobeC; i++ ));
+for (( i=0; i<${#AdobeC[*]}; i++ ));
 do
     sudo kill -9 ${AdobeC[$i]} > /dev/null 2>&1
 done
+sudo killall Adobe\ Connect > /dev/null 2>&1
 
 echo Closing FortiClient...
-countkForti=$(echo ${#FClient[*]})
-
-for (( i=0; i<$countkForti; i++ ));
+for (( i=0; i<${#FClient[*]}; i++ ));
 do
     sudo kill -9 ${FClient[$i]} > /dev/null 2>&1
 done
-
-sudo killall Safari > /dev/null 2>&1
-sudo killall Adobe\ Connect > /dev/null 2>&1
 sudo killall FortiClient > /dev/null 2>&1
 
-echo       
 echo Hang-Up mDNSResponder...
-sudo kill -HUP $mDNS1 $mDNS2
+for (( i=0; i<${#mDNS[*]}; i++ ));
+do
+    sudo kill -HUP ${mDNS[$i]} > /dev/null 2>&1
+done
+
+echo               
 echo Backing Up Safari Bookmarks...
 sudo cp -R ~/Library/Safari/Bookmarks.plist ~/Desktop
 echo Clearing CACHES...
@@ -72,9 +64,20 @@ echo Clearing AdobeConnect Settings...
 sudo rm -rf ~/Library/Preferences/Macromedia*
 sudo rm -rf ~/Library/Preferences/adobeconnectaddin.plist
 
-sudo rm -rf /tmp/*.txt > /dev/null 2>&1
-
-
-echo C O M P L E T E !
-
-sudo killall Terminal
+echo           
+echo C O M P L E T E D !
+echo                          
+echo  
+echo Closing Terminal in 5 secs...
+for (( i=5; i>=1; i-- ));
+do
+    if [[ i -eq 1 ]]; then
+        echo
+        echo closing NOW.. !
+        echo            
+        sudo killall Terminal
+    else
+        echo $i..
+        sleep 1
+    fi
+done

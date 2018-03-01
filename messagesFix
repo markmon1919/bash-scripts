@@ -4,24 +4,31 @@
 
 echo "*** Messages Fix Script ***"
 echo 'Enter your local password: "concentrix"'
+sudo dscacheutil -flushcache
+echo Flushing DNS . . .
 
-MessagesPS=$(ps aux | grep -i Messages | grep -v ttys | awk '{print $2}' > /tmp/MessagesPS.txt)
-declare iMessage=(`cat /tmp/MessagesPS.txt`)
+declare mDNS=(`ps -ax | grep -i mDNSResponder | grep -v ttys | awk '{print$1}'`)
+declare iMessage=(`ps -ax | grep -i Messages | grep -v ttys | awk '{print $1}'`)
 
 echo Closing Messages...
-countkMessages=$(echo ${#Messages[*]})
-
-for (( i=0; i<$countkMessages; i++ ));
+for (( i=0; i<${#iMessage[*]}; i++ ));
 do
     sudo kill -9 ${iMessage[$i]} > /dev/null 2>&1
 done
-
 sudo killall Messages > /dev/null 2>&1
 
+echo Hang-Up mDNSResponder...
+for (( i=0; i<${#mDNS[*]}; i++ ));
+do
+    sudo kill -HUP ${mDNS[$i]} > /dev/null 2>&1
+done
+
+echo          
+echo Clearing CACHES...
 sudo rm -rf /System/Library/Caches/* > /dev/null 2>&1
 sudo rm -rf /Library/Caches/* > /dev/null 2>&1
 sudo rm -rf ~/Library/Caches/* > /dev/null 2>&1
-
+echo Clearing Messages Settings...
 sudo rm -rf /Library/Preferences/com.apple.iChat* > /dev/null 2>&1
 sudo rm -rf /Library/Preferences/com.apple.imessage* > /dev/null 2>&1
 sudo rm -rf /Library/Preferences/com.apple.Messages* > /dev/null 2>&1
@@ -46,15 +53,19 @@ sudo rm -rf ~/Library/Preferences/ByHost/com.apple.imservice.iMessage* > /dev/nu
 sudo rm -rf ~/Library/Preferences/ByHost/com.apple.ichat* > /dev/null 2>&1
 sudo rm -rf ~/Library/Preferences/ByHost/com.apple.imagent.plist > /dev/null 2>&1
 
-echo Deleting certificate "spark.concentrix.com"
+echo Deleting Certificate "spark.concentrix.com"
 sudo security delete-certificate -c "spark.concentrix.com" ~/Library/Keychains/login.keychain-db > /dev/null 2>&1
 sudo security delete-certificate -c "spark.concentrix.com" /Library/Keychains/login.keychain-db > /dev/null 2>&1
-
 #sudo rm -rf ~/dscache > /dev/null 2>&1
 #sudo rm -rf /Library/Messages/* > /dev/null 2>&1
 #sudo rm -rf ~/Library/Messages/* > /dev/null 2>&1
 sudo killall Finder > /dev/null 2>&1
 
+echo               
+echo                
+echo C O M P L E T E D !
+echo                          
+echo    
 echo Closing Terminal in 5 secs...
 for (( i=5; i>=1; i-- ));
 do

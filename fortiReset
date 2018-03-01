@@ -7,29 +7,26 @@ echo 'Enter your local password: "concentrix"'
 sudo dscacheutil -flushcache
 echo Flushing DNS . . .
 
-mDNS1=$(pgrep mDNSResponder | sed -n 1p)
-mDNS2=$(pgrep mDNSResponder | sed -n 2p)
-FortiPS=$(ps aux | grep -i Forti | grep -v ttys | awk '{print $2}' > /tmp/FortiPS.txt)
-
-declare FClient=(`cat /tmp/FortiPS.txt`)
-
-sudo tar -cf ~/Desktop/Forti.bak /Library/Application\ Support/Fortinet/FortiClient/conf/vpn.plist
-echo Backing-up FortiClient profile...
-sleep 2
+declare mDNS=(`ps -ax | grep -i mDNSResponder | grep -v ttys | awk '{print $1}'`)
+declare FClient=(`ps -ax | grep -i Forti | grep -v ttys | awk '{print $1}'`)
 
 echo Closing FortiClient...
-countkForti=$(echo ${#FClient[*]})
-
-for (( i=0; i<$countkForti; i++ ));
+for (( i=0; i<${#FClient[*]}; i++ ));
 do
     sudo kill -9 ${FClient[$i]} > /dev/null 2>&1
 done
 
 sudo killall FortiClient > /dev/null 2>&1
-
-echo             
+      
 echo Hang-Up mDNSResponder...
-sudo kill -HUP $mDNS1 $mDNS2 > /dev/null 2>&1
+for (( i=0; i<${#mDNS[*]}; i++ ));
+do
+    sudo kill -HUP ${mDNS[$i]} > /dev/null 2>&1
+done
+
+echo              
+echo Backing-up FortiClient profile...
+sudo tar -C /Library/Application\ Support/Fortinet/FortiClient/conf/ -zcf ~/Desktop/vpn.bak vpn.plist
 echo Removing all FortiClient services...
 sudo rm -rf ~/Library/LaunchAgents/com.forti* > /dev/null 2>&1
 sudo rm -rf /Library/LaunchDaemons/com.forti* > /dev/null 2>&1
@@ -79,9 +76,9 @@ sudo killall FortiClient > /dev/null 2>&1
 
 echo                 
 echo Importing FortiClient profile...
-sudo tar -xf ~/Desktop/Forti.bak -C /
+sudo tar -xf ~/Desktop/vpn.bak -C /Library/Application\ Support/Fortinet/FortiClient/conf/
 sleep 5
-sudo rm -rf ~/Desktop/Forti.bak > /dev/null 2>&1
+sudo rm -rf ~/Desktop/vpn.bak > /dev/null 2>&1
 sudo rm -rf /tmp/Fortiprocess.txt > /dev/null 2>&1
 echo Changing Ownership...
 sudo chown -R root:wheel /Applications/FortiClient.app > /dev/null 2>&1

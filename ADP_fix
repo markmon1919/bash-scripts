@@ -7,22 +7,23 @@ echo 'Enter your local password: "concentrix"'
 sudo dscacheutil -flushcache
 echo Flushing DNS . . .
 
-mDNS1=$(pgrep mDNSResponder | sed -n 1p)
-mDNS2=$(pgrep mDNSResponder | sed -n 2p)
-SafariPS=$(ps aux | grep -i Safari | grep -v ttys | awk '{print $2}' > /tmp/SafariPS.txt)
-
-declare Sfari=(`cat /tmp/SafariPS.txt`)
+declare mDNS=(`ps -ax | grep -i mDNSResponder | grep -v ttys | awk '{print$1}'`)
+declare Sfari=(`ps -ax | grep -i Safari | grep -v ttys | awk '{print $1}'`)
 
 echo Closing Safari...
-countkSafari=$(echo ${#Sfari[*]})
-
-for (( i=0; i<$countkSafari; i++ ));
+for (( i=0; i<${#Sfari[*]}; i++ ));
 do
     sudo kill -9 ${Sfari[$i]} > /dev/null 2>&1
 done
+sudo killall Safari > /dev/null 2>&1
 
 echo Hang-Up mDNSResponder...
-sudo kill -HUP $mDNS1 $mDNS2 > /dev/null 2>&1
+for (( i=0; i<${#mDNS[*]}; i++ ));
+do
+    sudo kill -HUP ${mDNS[$i]} > /dev/null 2>&1
+done
+
+echo                 
 echo Backing Up Safari Bookmarks...
 sudo cp -R ~/Library/Safari/Bookmarks.plist ~/Desktop
 echo Clearing Java Plug-ins...
@@ -52,7 +53,7 @@ sleep 3
 echo Restoring Safari Bookmarks...
 sudo mv ~/Desktop/Bookmarks.plist ~/Library/Safari/
 echo Disabling Safari Pop-ups...
-open -g -a Safari
+open -g /Applications/Safari.app
 sleep 1
 
 WHO=$(whoami > /tmp/whoami.txt)
@@ -72,9 +73,8 @@ sleep 1
 writeplist
 
 echo Please download Java Runtime Environment Plugin...
-open -a Safari -g http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html
+open /Applications/Safari.app -g http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html
 
-sudo rm -rf /tmp/*.txt > /dev/null 2>&1
 echo C O M P L E T E !
 echo
 echo
