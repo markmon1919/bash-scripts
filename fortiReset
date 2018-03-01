@@ -106,7 +106,7 @@ if [[ $? -ne 0 ]]; then
 	echo 'import tkMessageBox' >> error.py
 	echo 'root = Tk()' >> error.py
 	echo 'root.withdraw()' >> error.py
-	echo 'tkMessageBox.showerror(title="Error!", message="FortiClient download FAILED!\n\nPlease download and install FortiClient manually.")' >> error.py
+	echo 'tkMessageBox.showwarning(title="Error!", message="FortiClient download FAILED!\n\nPlease download and install FortiClient manually.")' >> error.py
 	}
 	error
 	sudo ./error.py > /dev/null 2>&1

@@ -46,6 +46,10 @@ sudo rm -rf ~/Library/Preferences/ByHost/com.apple.imservice.iMessage* > /dev/nu
 sudo rm -rf ~/Library/Preferences/ByHost/com.apple.ichat* > /dev/null 2>&1
 sudo rm -rf ~/Library/Preferences/ByHost/com.apple.imagent.plist > /dev/null 2>&1
 
+echo Deleting certificate "spark.concentrix.com"
+sudo security delete-certificate -c "spark.concentrix.com" ~/Library/Keychains/login.keychain-db > /dev/null 2>&1
+sudo security delete-certificate -c "spark.concentrix.com" /Library/Keychains/login.keychain-db > /dev/null 2>&1
+
 #sudo rm -rf ~/dscache > /dev/null 2>&1
 #sudo rm -rf /Library/Messages/* > /dev/null 2>&1
 #sudo rm -rf ~/Library/Messages/* > /dev/null 2>&1

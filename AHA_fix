@@ -252,7 +252,7 @@ if [[ $appctest -ne 0 ]]; then
     echo 'import tkMessageBox' >> apcerror.py
     echo 'root = Tk()' >> apcerror.py
     echo 'root.withdraw()' >> apcerror.py
-    echo 'tkMessageBox.showerror(title="Error!", message="AppleConnect download FAILED!\n\nPlease download and install AppleConnect manually after system reboots.")' >> apcerror.py
+    echo 'tkMessageBox.showwarning(title="Error!", message="AppleConnect download FAILED!\n\nPlease download and install AppleConnect manually after system reboots.")' >> apcerror.py
     }
     apcerror
     sudo ./apcerror.py > /dev/null 2>&1
@@ -272,7 +272,7 @@ if [[ $ilogtest -ne 0 ]]; then
     echo 'import tkMessageBox' >> ilogerror.py
     echo 'root = Tk()' >> ilogerror.py
     echo 'root.withdraw()' >> ilogerror.py
-    echo 'tkMessageBox.showerror(title="Error!", message="iLog download FAILED!\n\nPlease download and install iLog manually after system reboots.")' >> ilogerror.py
+    echo 'tkMessageBox.showwarning(title="Error!", message="iLog download FAILED!\n\nPlease download and install iLog manually after system reboots.")' >> ilogerror.py
     }
     ilogerror
     sudo ./ilogerror.py > /dev/null 2>&1
@@ -292,7 +292,7 @@ if [[ $safetest -ne 0 ]]; then
     echo 'import tkMessageBox' >> safeerror.py
     echo 'root = Tk()' >> safeerror.py
     echo 'root.withdraw()' >> safeerror.py
-    echo 'tkMessageBox.showerror(title="Error!", message="SafeView download FAILED!\n\nPlease download and install SafeView manually after system reboots.")' >> safeerror.py
+    echo 'tkMessageBox.showwarning(title="Error!", message="SafeView download FAILED!\n\nPlease download and install SafeView manually after system reboots.")' >> safeerror.py
     }
     safeerror
     sudo ./safeerror.py > /dev/null 2>&1
@@ -313,7 +313,7 @@ if [[ $javatest -ne 0 ]]; then
     echo 'import tkMessageBox' >> javaerror.py
     echo 'root = Tk()' >> javaerror.py
     echo 'root.withdraw()' >> javaerror.py
-    echo 'tkMessageBox.showerror(title="Error!", message="JAVA download FAILED!\n\nPlease download and install JAVA manually after system reboots.")' >> javaerror.py
+    echo 'tkMessageBox.showwarning(title="Error!", message="JAVA download FAILED!\n\nPlease download and install JAVA manually after system reboots.")' >> javaerror.py
     }
     javaerror
     sudo ./javaerror.py > /dev/null 2>&1
