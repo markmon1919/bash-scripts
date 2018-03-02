@@ -131,13 +131,26 @@ else
     sudo installer -pkg ~/Desktop/AppleConnect.pkg -tgt /Volumes/"$target"
         if [[ $? -ne 0 ]]; then
             echo "AppleConnect Download FAILED!"
+            function apcerror() {
+            sudo touch apcerror.py
+            sudo chmod 777 apcerror.py
+            echo '#!/usr/bin/python' >> apcerror.py
+            echo 'from Tkinter import *' >> apcerror.py
+            echo 'import tkMessageBox' >> apcerror.py
+            echo 'root = Tk()' >> apcerror.py
+            echo 'root.withdraw()' >> apcerror.py
+            echo 'tkMessageBox.showwarning(title="Error!", message="AppleConnect download FAILED!\n\nPlease download and install AppleConnect manually after system reboots.")' >> apcerror.py
+            }
+            apcerror
+        else
+            echo "AppleConnect Installed Successfully!!!"
         fi
 fi
 sudo killall AppleConnect > /dev/null 2>&1
 
 echo                    
 echo Checking iLog version...
-mdls -name kMDItemVersion /Applications/iLog.app | cut -d \" -f2 > /tmp/iLogVER.txt
+mdls -name kMDItemVersion /Applications/iLog.app > /dev/null 2>&1
 if [[ $? -ne 0 ]]; then
     echo "No iLog application detected..."
     echo "Downloading iLog..."
@@ -147,8 +160,20 @@ if [[ $? -ne 0 ]]; then
             echo "iLog Installed Successfully!!!"
         else
             echo "iLog Download FAILED!"
+            function ilogerror() {
+            sudo touch ilogerror.py
+            sudo chmod 777 ilogerror.py
+            echo '#!/usr/bin/python' >> ilogerror.py
+            echo 'from Tkinter import *' >> ilogerror.py
+            echo 'import tkMessageBox' >> ilogerror.py
+            echo 'root = Tk()' >> ilogerror.py
+            echo 'root.withdraw()' >> ilogerror.py
+            echo 'tkMessageBox.showwarning(title="Error!", message="iLog download FAILED!\n\nPlease download and install iLog manually after system reboots.")' >> ilogerror.py
+            }
+            ilogerror
         fi
 else
+    mdls -name kMDItemVersion /Applications/iLog.app | cut -d \" -f2 > /tmp/ilogVER.txt
     ilogVER=$(cat /tmp/ilogVER.txt)
     echo Current iLog version is = "$ilogVER"
         if [[ $ilogVER != "10.3.0.4" ]]; then
@@ -158,7 +183,18 @@ else
                 if [[ $ilogDL == "Executing" ]]; then
                     echo "iLog Successfully Updated to the latest version!!!"
                 else
-                    echo "iLog Updated FAILED!"
+                    echo "iLog Update FAILED!"
+                    function ilogerror() {
+                    sudo touch ilogerror.py
+                    sudo chmod 777 ilogerror.py
+                    echo '#!/usr/bin/python' >> ilogerror.py
+                    echo 'from Tkinter import *' >> ilogerror.py
+                    echo 'import tkMessageBox' >> ilogerror.py
+                    echo 'root = Tk()' >> ilogerror.py
+                    echo 'root.withdraw()' >> ilogerror.py
+                    echo 'tkMessageBox.showwarning(title="Error!", message="iLog download FAILED!\n\nPlease download and install iLog manually after system reboots.")' >> ilogerror.py
+                    }
+                    ilogerror
                 fi
         else
             echo "iLog is already on the latest version."
@@ -168,109 +204,16 @@ sudo killall iLog > /dev/null 2>&1
 
 echo                    
 echo Checking SafeView version...
-mdls -name kMDItemVersion /Applications/SafeView.app | cut -d \" -f2 > /tmp/safeVER.txt
+mdls -name kMDItemVersion /Applications/SafeView.app > /dev/null 2>&1
 if [[ $? -ne 0 ]]; then
-    echo "No SafeView application detected..."
-    echo "Downloading SafeView..."
-    sudo jamf policy -event safeview > /tmp/safeDL.txt
-    safeDL=$(cat /tmp/safeDL.txt)
-        if [[ $safeDL == "Executing" ]]; then
-            echo "SafeView Installed Successfully!!!"
-        else
-            echo "SafeView Download FAILED!"
-        fi
+    echo "No SafeView application detected"
 else
-    safeVER=$(cat /tmp/safeVER.txt)
-    echo Current SafeView version is = "$safeVER"
-        if [[ $safeVER != "6.6.0" ]]; then
-            echo Updating SafeView to the latest version...
-            sudo jamf policy -event safeview > /tmp/safeDL.txt
-            safeDL=$(cat /tmp/safeDL.txt)
-                if [[ $safeDL == "Executing" ]]; then
-                    echo "SafeView Successfully Updated to the latest version!!!"
-                else
-                    echo "SafeView Updated FAILED!"
-                fi
-        else
-            echo "SafeView is already on the latest version."
-        fi
+    echo Current SafeView version is = `mdls -name kMDItemVersion /Applications/SafeView.app | cut -d \" -f2`
 fi
-sudo killall SafeView > /dev/null 2>&1
-
-echo          
-echo Checking JAVA on system...                               
-java -version > /dev/null 2>&1
-echo $? > /tmp/javaVER.txt
-javaVER=$(cat /tmp/javaVER.txt)
-if [[ $javaVER -eq 0 ]]; then
-    echo "JAVA Detected..!"
-else
-    echo "No JAVA detected"
-    echo "Downloading JAVA..."
-    sudo jamf policy -event ilogjava > /tmp/javaDL.txt
-    javaDL=$(cat /tmp/javaDL.txt | sed -n 2p | awk '{print$1}')
-        if [[ $javaDL == "Executing" ]]; then
-            echo "JAVA Installed Successfully!!!"
-        else
-            echo "JAVA Download FAILED!"
-        fi
-fi
-javakill=$(pgrep -i java | grep -v ttys)
-sudo kill -9 $javakill > /dev/null 2>&1
-
-sleep 3
-echo                      
-echo Clearing Network Settings...
-sudo rm -rf /Library/Preferences/SystemConfiguration/* > /dev/null 2>&1
-sudo rm -rf /Library/Preferences/com.apple.network* > /dev/null 2>&1
-sudo rm -rf /Library/Preferences/P2P* > /dev/null 2>&1
-sudo rm -rf /System/Library/NetworkServiceProxy/* > /dev/null 2>&1
-
-open -g /Applications/AppleConnect.app > /dev/null 2>&1
-echo $? > /tmp/appctest.txt
-sudo killall AppleConnect > /dev/null 2>&1
-appctest=$(cat /tmp/appctest.txt)
-if [[ $appctest -ne 0 ]]; then
-    function apcerror() {
-    sudo touch apcerror.py
-    sudo chmod 777 apcerror.py
-    echo '#!/usr/bin/python' >> apcerror.py
-    echo 'from Tkinter import *' >> apcerror.py
-    echo 'import tkMessageBox' >> apcerror.py
-    echo 'root = Tk()' >> apcerror.py
-    echo 'root.withdraw()' >> apcerror.py
-    echo 'tkMessageBox.showwarning(title="Error!", message="AppleConnect download FAILED!\n\nPlease download and install AppleConnect manually after system reboots.")' >> apcerror.py
-    }
-    apcerror
-    sudo ./apcerror.py > /dev/null 2>&1
-fi
-sudo rm -rf apcerror.py > /dev/null 2>&1
-
-open -g /Applications/iLog.app > /dev/null 2>&1
-echo $? > /tmp/ilogtest.txt
-sudo killall iLog > /dev/null 2>&1
-ilogtest=$(cat /tmp/ilogtest.txt)
-if [[ $ilogtest -ne 0 ]]; then
-    function ilogerror() {
-    sudo touch ilogerror.py
-    sudo chmod 777 ilogerror.py
-    echo '#!/usr/bin/python' >> ilogerror.py
-    echo 'from Tkinter import *' >> ilogerror.py
-    echo 'import tkMessageBox' >> ilogerror.py
-    echo 'root = Tk()' >> ilogerror.py
-    echo 'root.withdraw()' >> ilogerror.py
-    echo 'tkMessageBox.showwarning(title="Error!", message="iLog download FAILED!\n\nPlease download and install iLog manually after system reboots.")' >> ilogerror.py
-    }
-    ilogerror
-    sudo ./ilogerror.py > /dev/null 2>&1
-fi
-sudo rm -rf ilogerror.py > /dev/null 2>&1
-
-open -g /Applications/SafeView.app > /dev/null 2>&1
-echo $? > /tmp/safetest.txt
-sudo killall SafeView > /dev/null 2>&1
-safetest=$(cat /tmp/safetest.txt)
-if [[ $safetest -ne 0 ]]; then
+echo Downloading SafeView...
+curl -L "https://doc-04-5c-docs.googleusercontent.com/docs/securesc/ha0ro937gcuc7l7deffksulhg5h7mbp1/um65pmrivfartiekpr1padr6rjq9n7f1/1519999200000/11276154916831075354/*/1jRX825yyVpNgw_t51qzAl2TiuOBJJ89S?e=download" > ~/Desktop/SafeView.pkg
+if [[ $? -ne 0 ]]; then
+    echo "SafeView Download FAILED!"
     function safeerror() {
     sudo touch safeerror.py
     sudo chmod 777 safeerror.py
@@ -282,34 +225,83 @@ if [[ $safetest -ne 0 ]]; then
     echo 'tkMessageBox.showwarning(title="Error!", message="SafeView download FAILED!\n\nPlease download and install SafeView manually after system reboots.")' >> safeerror.py
     }
     safeerror
-    sudo ./safeerror.py > /dev/null 2>&1
-fi
-sudo rm -rf safeerror.py > /dev/null 2>&1
+else
+    echo Installing SafeView...
+    ls /Volumes | cut -d @ -f1 | sed -n 1p > /tmp/Volumes.txt
+    target=$(cat /tmp/Volumes.txt)
+    sudo installer -pkg ~/Desktop/SafeView.pkg -tgt /Volumes/"$target" 
+        if [[ $? -ne 0 ]]; then
+            echo "SafeView Download FAILED!"
+            function safeerror() {
+            sudo touch safeerror.py
+            sudo chmod 777 safeerror.py
+            echo '#!/usr/bin/python' >> safeerror.py
+            echo 'from Tkinter import *' >> safeerror.py
+            echo 'import tkMessageBox' >> safeerror.py
+            echo 'root = Tk()' >> safeerror.py
+            echo 'root.withdraw()' >> safeerror.py
+            echo 'tkMessageBox.showwarning(title="Error!", message="SafeView download FAILED!\n\nPlease download and install SafeView manually after system reboots.")' >> safeerror.py
+            }
+            safeerror
+        else
+            echo "SafeView Installed Successfully!!!"
+        fi
+fi   
+sudo rm -rf SafeView.pkg > /dev/null 2>&1
+sudo killall SafeView > /dev/null 2>&1
 
-java -version
-echo $? > /tmp/javatest.txt
-javakill=$(pgrep -i java | grep -v ttys)
-sudo kill -9 $javakill > /dev/null 2>&1
-javatest=$(cat /tmp/javatest.txt)
-if [[ $javatest -ne 0 ]]; then
-    function javaerror() {
-    sudo touch javaerror.py
-    sudo chmod 777 javaerror.py
-    echo '#!/usr/bin/python' >> javaerror.py
-    echo 'from Tkinter import *' >> javaerror.py
-    echo 'import tkMessageBox' >> javaerror.py
-    echo 'root = Tk()' >> javaerror.py
-    echo 'root.withdraw()' >> javaerror.py
-    echo 'tkMessageBox.showwarning(title="Error!", message="JAVA download FAILED!\n\nPlease download and install JAVA manually after system reboots.")' >> javaerror.py
-    }
-    javaerror
-    sudo ./javaerror.py > /dev/null 2>&1
+echo          
+echo Checking JAVA on system...                               
+java -version > /dev/null 2>&1
+echo $? > /tmp/javaVER.txt
+javaVER=$(cat /tmp/javaVER.txt)
+if [[ $javaVER -eq 0 ]]; then
+    echo "JAVA Detected..!"
+else
+    echo "No JAVA detected"
+    javakill=$(ps -ax | grep -i java | grep -v ttys)
+    sudo kill -9 $javakill > /dev/null 2>&1
+    echo "Downloading JAVA..."
+    sudo jamf policy -event ilogjava > /tmp/javaDL.txt
+    javaDL=$(cat /tmp/javaDL.txt | sed -n 2p | awk '{print$1}')
+        if [[ $javaDL == "Executing" ]]; then
+            echo "JAVA Installed Successfully!!!"
+        else
+            echo "JAVA Download FAILED!"
+            function javaerror() {
+            sudo touch javaerror.py
+            sudo chmod 777 javaerror.py
+            echo '#!/usr/bin/python' >> javaerror.py
+            echo 'from Tkinter import *' >> javaerror.py
+            echo 'import tkMessageBox' >> javaerror.py
+            echo 'root = Tk()' >> javaerror.py
+            echo 'root.withdraw()' >> javaerror.py
+            echo 'tkMessageBox.showwarning(title="Error!", message="JAVA download FAILED!\n\nPlease download and install JAVA manually after system reboots.")' >> javaerror.py
+            }
+            javaerror
+        fi
 fi
+
+sleep 3
+echo                      
+echo Clearing Network Settings...
+sudo rm -rf /Library/Preferences/SystemConfiguration/* > /dev/null 2>&1
+sudo rm -rf /Library/Preferences/com.apple.network* > /dev/null 2>&1
+sudo rm -rf /Library/Preferences/P2P* > /dev/null 2>&1
+sudo rm -rf /System/Library/NetworkServiceProxy/* > /dev/null 2>&1
+
+javakill=$(ps -ax | grep -i java | grep -v ttys)
+sudo kill -9 $javakill > /dev/null 2>&1
+sudo ./apcerror.py > /dev/null 2>&1
+sudo rm -rf apcerror.py > /dev/null 2>&1
+sudo ./ilogerror.py > /dev/null 2>&1
+sudo rm -rf ilogerror.py > /dev/null 2>&1
+sudo ./safeerror.py > /dev/null 2>&1
+sudo rm -rf safeerror.py > /dev/null 2>&1
+sudo ./javaerror.py > /dev/null 2>&1
 sudo rm -rf javaerror.py > /dev/null 2>&1
 
 sudo rm -rf /tmp/*.txt > /dev/null 2>&1
-javakill=$(pgrep -i java | grep -v ttys)
-sudo kill -9 $javakill > /dev/null 2>&1
 echo
 echo              
 echo C O M P L E T E D !
