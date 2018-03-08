@@ -1,0 +1,32 @@
+#!/bin/bash
+
+declare echFiles=(`ls /Volumes/CHRSPLOGS`)
+declare readFiles=()
+month=$1
+from=$2
+to=$3
+year=$4
+folderTarget=""
+
+for (( i=$from; i<=$to; i++ )); do
+	if [[ i -lt 10 ]]; then
+		folderTarget=$month
+		folderTarget+="0"
+		folderTarget+=$i
+		folderTarget+=$year
+	else 
+		folderTarget=$month$i$year
+	fi
+
+	readFiles=(`ls /Volumes/CHRSPLOGS/$folderTarget`)
+
+	for (( a=0; a<${#echFiles[*]}; a++ )); do
+		if [[ a -eq 0 ]]; then
+			cat /Volumes/CHRSPLOGS/$folderTarget/${readFiles[$i]} | grep 72200 > ~/Desktop/ech/ech_output$month$from$to$year.txt
+		else
+			cat /Volumes/CHRSPLOGS/$folderTarget/${readFiles[$i]} | grep 72200 >> ~/Desktop/ech/ech_output$month$from$to$year.txt
+			echo /Volumes/CHRSPLOGS/$folderTarget/${readFiles[$i]}
+		fi
+	done
+done
+

@@ -1,0 +1,105 @@
+#!/bin/bash
+#Created by Mark Mon Monteros
+#	*** Fetch iLog Plists Script ***
+
+echo                       
+echo "*** Fetch iLog Plists Script ***"
+echo                        
+echo "Please run this script on IT end"
+echo                         
+sudo rm -rf ~/.ssh/known_hosts
+
+echo                      
+echo "Enter Agent's VPN IP Address: "
+read vpnIP
+echo "Enter Agent's Ticket Number: "
+read ticket
+
+mkdir ~/Desktop/"$ticket"/
+chmod 777 ~/Desktop/"$ticket"
+echo                      
+echo Fetching AppleConnect Plists...
+touch ~/Desktop/"$ticket"/scpexpect.txt
+chmod 777 ~/Desktop/"$ticket"/scpexpect.txt
+function fetch() {
+#getName
+echo '#!/usr/bin/expect -f' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo spawn ssh -o StrictHostKeyChecking=no workathomeagent@$vpnIP >> ~/Desktop/"$ticket"/scpexpect.txt
+echo expect '"'assword: '"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo send '"'concentrix'\'r'"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo expect '"''$''"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo send '"security find-certificate -a ~/Library/Keychains/login.keychain | grep -A 1 CONCENTRIX-GVW-P-CA | tail -n 1 | cut -d = -f2 > ~/Desktop/name.txt; mv ~/Desktop/name.txt /tmp/\r"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo expect '"''$''"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo send '"'exit'\'r'"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo 'interact' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo spawn bash -c '"'scp -o StrictHostKeyChecking=no workathomeagent@$vpnIP:/tmp/name.txt /tmp/'"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo expect '"'assword: '"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo send '"'concentrix'\'r'"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo 'interact' >> ~/Desktop/"$ticket"/scpexpect.txt
+#getPlists
+echo spawn bash -c '"'scp -o StrictHostKeyChecking=no workathomeagent@$vpnIP:/Library/Preferences/com.apple.ist* ~/Desktop/"$ticket"/'"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo expect '"'assword: '"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo send '"'concentrix'\'r'"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo 'interact' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo spawn bash -c '"'scp -o StrictHostKeyChecking=no workathomeagent@$vpnIP:~/Library/Preferences/com.apple.ist* ~/Desktop/"$ticket"/'"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo expect '"'assword: '"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo send '"'concentrix'\'r'"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo 'interact' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo spawn bash -c '"'scp -o StrictHostKeyChecking=no workathomeagent@$vpnIP:~/Library/Preferences/ByHost/com.apple.ist* ~/Desktop/"$ticket"/'"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo expect '"'assword: '"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo send '"'concentrix'\'r'"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo 'interact' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo spawn bash -c '"'scp -o StrictHostKeyChecking=no workathomeagent@$vpnIP:/Library/Preferences/com.apple.alf* ~/Desktop/"$ticket"/'"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo expect '"'assword: '"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo send '"'concentrix'\'r'"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo 'interact' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo "Fetching iLog Plists..."
+echo spawn bash -c '"'scp -o StrictHostKeyChecking=no workathomeagent@$vpnIP:~/Library/"Application Support"/ILOG* ~/Desktop/"$ticket"/'"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo expect '"'assword: '"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo send '"'concentrix'\'r'"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo 'interact' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo spawn bash -c '"'scp -o StrictHostKeyChecking=no workathomeagent@$vpnIP:~/ilog* ~/Desktop/"$ticket"/'"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo expect '"'assword: '"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo send '"'concentrix'\'r'"' >> ~/Desktop/"$ticket"/scpexpect.txt
+echo 'interact' >> ~/Desktop/"$ticket"/scpexpect.txt
+}
+fetch
+
+~/Desktop/"$ticket"/scpexpect.txt
+
+rm -rf ~/Desktop/"$ticket"/scpexpect.txt
+name=$(cat /tmp/name.txt | tr -d '"')
+IT=$(security find-certificate -a ~/Library/Keychains/login.keychain | grep -A 1 CONCENTRIX-GVW-P-CA | tail -n 1 | cut -d \" -f4)
+mv ~/Desktop/"$ticket" ~/Desktop/"$name($ticket)--$IT"
+
+echo                      
+echo Compressing "$name($ticket)--$IT"...
+tar -C ~/Desktop/ -cf ~/Desktop/"$name($ticket)--$IT".zip "$name($ticket)--$IT"
+if [[ $? -eq 0 ]]; then
+	rm -rf ~/Desktop/"$name($ticket)--$IT"
+fi
+
+echo 
+echo              
+echo Sending a copy to Mark...
+touch ~/Desktop/scpexpect.txt
+chmod 777 ~/Desktop/scpexpect.txt
+function send() {
+echo '#!/usr/bin/expect -f' > ~/Desktop/scpexpect.txt
+echo spawn bash -c '"'scp -o StrictHostKeyChecking=no ~/Desktop/"'""$name($ticket)--$IT".zip"'" ITWAHSC@10.57.136.18:~/Documents/Scripts/fetchPlist/'"' >> ~/Desktop/scpexpect.txt
+echo expect '"'assword: '"' >> ~/Desktop/scpexpect.txt
+echo send '"'concentrix'\'r'"' >> ~/Desktop/scpexpect.txt
+echo 'interact' >> ~/Desktop/scpexpect.txt
+}
+send
+~/Desktop//scpexpect.txt
+if [[ $? -ne 0 ]]; then
+	echo Send failed "You are not connected to the ethernet..."
+	echo Please send "$name($ticket)--$IT".zip located on your Desktop to mark.monteros@concentrix.com
+fi
+
+rm -rf ~/Desktop/scpexpect.txt
+rm -rf /tmp/name.txt
+echo          
+echo C O M P L E T E !
+echo
