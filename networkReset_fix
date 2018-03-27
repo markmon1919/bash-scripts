@@ -1,0 +1,48 @@
+#!/bin/bash
+#   Created by WAH-IT PHL L2
+#	*** Network Reset Script ***
+
+echo "*** Network Reset Scripto ***"
+echo 'Enter your local password: "concentrix"'
+sudo dscacheutil -flushcache
+echo Flushing DNS . . .
+
+declare mDNS=(`ps -ax | grep -i mDNSResponder | grep -v ttys | awk '{print$1}'`)
+declare FClient=(`ps -ax | grep -i Forti | grep -v ttys | awk '{print$1}'`)
+
+
+echo Closing FortiClient...
+for (( i=0; i<${#FClient[*]}; i++ ));
+do
+    sudo kill -9 ${FClient[$i]} > /dev/null 2>&1
+done
+sudo killall FortiClient > /dev/null 2>&1
+
+echo Hang-Up mDNSResponder...
+for (( i=0; i<${#mDNS[*]}; i++ ));
+do
+    sudo kill -HUP ${mDNS[$i]} > /dev/null 2>&1
+done
+
+echo Shut/No-Shut Interface...
+sudo ifconfig en0 down
+sleep 1
+sudo ifconfig en0 up
+sleep 1
+
+echo C O M P L E T E D !
+echo                          
+echo  
+echo Closing Terminal in 5 secs...
+for (( i=5; i>=1; i-- ));
+do
+    if [[ i -eq 1 ]]; then
+        echo
+        echo closing NOW.. !
+        echo            
+        sudo killall Terminal
+    else
+        echo $i..
+        sleep 1
+    fi
+done

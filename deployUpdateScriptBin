@@ -1,0 +1,17 @@
+#!/usr/bin/expect -f
+
+spawn bash -c "scp -o StrictHostKeyChecking=no ~/Documents/Scripts/others/.updateScripts ITWAHSC@10.57.136.39:/Applications/\[\{Scripts\}\]/"
+expect "assword: "
+send "concentrix\r"
+interact
+
+spawn ssh -o StrictHostKeyChecking=no ITWAHSC@10.57.136.39
+expect "assword: "
+send "concentrix\r"
+expect "$"
+send "sudo /Applications/\[\{Scripts\}\]/.updateScripts\r"
+expect "assword: "
+send "concentrix\r"
+expect "$"
+send "exit\r"
+interact

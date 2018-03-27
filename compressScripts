@@ -1,0 +1,26 @@
+#!/bin/bash
+
+declare Scripts=(`ls -l ~/Documents/Scripts | grep -v ^d | awk '{print$9}' | tr -d "*" | grep -v ^compress`)
+
+for (( i=0; i<${#Scripts[*]}; i++ )); do
+	tar -C ~/Documents/Scripts/ -vcf ~/Documents/Scripts/compressed/${Scripts[$i]}.zip  ${Scripts[$i]}
+done
+
+echo
+echo  
+echo C O M P L E T E D !
+echo                          
+echo  
+echo Closing Terminal in 5 secs...
+for (( i=5; i>=1; i-- ));
+do
+    if [[ i -eq 1 ]]; then
+        echo
+        echo closing NOW.. !
+        echo            
+        sudo killall Terminal
+    else
+        echo $i..
+        sleep 1
+    fi
+done

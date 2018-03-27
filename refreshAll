@@ -1,5 +1,5 @@
 #!/bin/bash
-#Created by Mark Mon Monteros
+#   Created by WAH-IT PHL L2
 #	*** Refresh All Processes Script ***
 
 echo "*** Refresh All Processes Script ***"
@@ -73,29 +73,11 @@ do
     sudo kill -HUP ${mDNS[$i]} > /dev/null 2>&1
 done
 
-echo    
-echo Clearing CACHES...
-sudo rm -rf /System/Library/Caches/* > /dev/null 2>&1
-sudo rm -rf /Library/Caches/* > /dev/null 2>&1
-sudo rm -rf ~/Library/Caches/* > /dev/null 2>&1
-sudo rm -rf /System/Library/CacheDelete/* > /dev/null 2>&1
-echo Removing Temporary Files...
-sudo rm -rf ~/.temp* > /dev/null 2>&1
-sleep 3
-echo Changing Ownership...
-sudo chown -R root:wheel /Applications/SafeView.app > /dev/null 2>&1
-sudo chown -R root:wheel /Applications/iLog.app > /dev/null 2>&1
-sudo chown -R root:wheel /Applications/AppleConnect.app > /dev/null 2>&1
-sudo chown -R root:wheel /Applications/FortiClient.app > /dev/null 2>&1
-sleep 3
-echo Changing Permissions...
-sudo chmod -R 755 /Applications/SafeView.app > /dev/null 2>&1
-sudo chmod -R 755 /Applications/iLog.app > /dev/null 2>&1
-sudo chmod -R 755 /Applications/AppleConnect.app > /dev/null 2>&1
-sudo chmod -R 755 /Applications/FortiClient.app > /dev/null 2>&1
-sleep 2
-echo
-echo              
+echo Shut/No-Shut Interface...
+sudo ifconfig en0 down
+sleep 1
+sudo ifconfig en0 up
+sleep 1       
 
 echo C O M P L E T E D !
 echo                          

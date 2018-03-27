@@ -1,5 +1,5 @@
 #!/bin/bash
-#Created by Mark Mon Monteros
+#   Created by WAH-IT PHL L2
 #	*** Fetch iLog Plists Script ***
 
 echo                       
@@ -92,7 +92,7 @@ echo send '"'concentrix'\'r'"' >> ~/Desktop/scpexpect.txt
 echo 'interact' >> ~/Desktop/scpexpect.txt
 }
 send
-~/Desktop//scpexpect.txt
+~/Desktop/scpexpect.txt
 if [[ $? -ne 0 ]]; then
 	echo Send failed "You are not connected to the ethernet..."
 	echo Please send "$name($ticket)--$IT".zip located on your Desktop to mark.monteros@concentrix.com

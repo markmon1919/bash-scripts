@@ -1,5 +1,5 @@
 #!/bin/bash
-#Created by Mark Mon Monteros
+#   Created by WAH-IT PHL L2
 #	*** ADP Fix Script ***
 
 echo "*** ADP Fix Script ***"
@@ -29,7 +29,7 @@ sudo cp -R ~/Library/Safari/Bookmarks.plist ~/Desktop
 echo Clearing Java Plug-ins...
 sudo rm -rf /Library/Preferences/com.oracle* > /dev/null 2>&1
 sudo rm -rf /Library/Java* > /dev/null 2>&1
-sudo rm -rf /Library/Internet \Plug \Ins/Java* > /dev/null 2>&1
+sudo rm -rf /Library/Internet\ Plug\ Ins/Java* > /dev/null 2>&1
 sudo rm -rf ~/Library/Oracle* > /dev/null 2>&1
 sudo rm -rf ~/Library/Preferences/com.oracle* > /dev/null 2>&1
 sudo rm -rf /Library/Internet\ Plug-Ins/Java*
@@ -56,19 +56,17 @@ echo Disabling Safari Pop-ups...
 open -g /Applications/Safari.app
 sleep 1
 
-WHO=$(whoami > /tmp/whoami.txt)
-WHOAMI=$(cat /tmp/whoami.txt)
-HOMEDIR=$(dscl . -read /Users/"$WHOAMI" NFSHomeDirectory | awk '{print$2}')
-LIB=$(echo /Library/Preferences/com.apple.Safari.plist)
-WRITE=$(echo $HOMEDIR$LIB)
+WHOAMI=(`whoami`)
+HOMEDIR=(`dscl . -read /Users/"$WHOAMI" NFSHomeDirectory | awk '{print$2}'`)
+LIB=(`echo /Library/Preferences/com.apple.Safari.plist`)
+WRITE=(`echo $HOMEDIR$LIB`)
 sudo killall Safari
 
-
-chmod 777 $WRITE
+chmod 777 $WRITE > /dev/null 2>&1
 sleep 2
 function writeplist() {
-defaults write $WRITE com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaScriptCanOpenWindowsAutomatically "<true />"
-}
+	defaults write $WRITE com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaScriptCanOpenWindowsAutomatically "<true />"
+	}
 sleep 1
 writeplist
 

@@ -1,24 +1,23 @@
 #!/bin/bash
 #   Created by WAH-IT PHL L2
-#	*** Keychain Fix Script ***
+#	*** AHA Fix Script ***
 
-echo "*** Keychain Fix Script ***"
+echo "*** AHA Fix Script ***"
 echo 'Enter your local password: "concentrix"'
 sudo dscacheutil -flushcache
 echo Flushing DNS . . .
 
 declare mDNS=(`ps -ax | grep -i mDNSResponder | grep -v ttys | awk '{print$1}'`)
-declare Safari=(`ps -ax | grep -i Safari | grep -v ttys | awk '{print$1}'`)
-declare SafeView=(`ps -ax | grep -i SafeView | grep -v ttys | awk '{print$1}'`)
-declare iLog=(`ps -ax | grep -i iLog | grep -v ttys | awk '{print$1}'`)
-declare Apple=(`ps -ax | grep -i AppleConnect | grep -v ttys | awk '{print$1}'`)
-declare Avalon=(`ps -ax | grep -i Avalon | grep -v ttys | awk '{print$1}'`)
-declare Forti=(`ps -ax | grep -i Forti | grep -v ttys | awk '{print$1}'`)
+declare Sfari=(`ps -ax | grep -i Safari | grep -v ttys | awk '{print $1}'`)
+declare SafeView=(`ps -ax | grep -i SafeView | grep -v ttys | awk '{print $1}'`)
+declare iLog=(`ps -ax | grep -i iLog | grep -v ttys | awk '{print $1}'`)
+declare Apple=(`ps -ax | grep -i AppleConnect | grep -v ttys | awk '{print $1}'`)
+declare Avalon=(`ps -ax | grep -i Avalon | grep -v ttys | awk '{print $1}'`)
 
 echo Closing Safari...
-for (( i=0; i<${#Safari[*]}; i++ ));
+for (( i=0; i<${#Sfari[*]}; i++ ));
 do
-    sudo kill -9 ${Safari[$i]} > /dev/null 2>&1
+    sudo kill -9 ${Sfari[$i]} > /dev/null 2>&1
 done
 sudo killall Safari > /dev/null 2>&1
 
@@ -50,26 +49,16 @@ do
 done
 sudo killall Avalon > /dev/null 2>&1
 
-echo Closing FortiClient...
-for (( i=0; i<${#Forti[*]}; i++ ));
-do
-    sudo kill -9 ${Forti[$i]} > /dev/null 2>&1
-done
-sudo killall FortiClient > /dev/null 2>&1
-
 echo Hang-Up mDNSResponder...
 for (( i=0; i<${#mDNS[*]}; i++ ));
 do
     sudo kill -HUP ${mDNS[$i]} > /dev/null 2>&1
 done
 
-echo                          
+echo                 
 echo Backing Up Safari Bookmarks...
 sudo cp -R ~/Library/Safari/Bookmarks.plist ~/Desktop
-sleep 1
 echo Clearing CACHES...
-echo
-kdestroy -a > /dev/null 2>&1
 sudo rm -rf /System/Library/Caches/* > /dev/null 2>&1
 sudo rm -rf /Library/Caches/* > /dev/null 2>&1
 sudo rm -rf ~/Library/Caches/* > /dev/null 2>&1
@@ -83,17 +72,16 @@ sudo rm -rf ~/Library/PubSub/Database/* > /dev/null 2>&1
 sudo rm -rf /Library/LaunchDaemons/com.apple.* > /dev/null 2>&1
 sudo rm -rf /Library/LaunchAgents/com.apple.* > /dev/null 2>&1
 sudo rm -rf ~/Library/LaunchAgents/* > /dev/null 2>&1
-echo Clearing Network Settings...
-sudo rm -rf /Library/Preferences/SystemConfiguration/* > /dev/null 2>&1
-sudo rm -rf /Library/Preferences/com.apple.network* > /dev/null 2>&1
 echo Clearing AppleConnect Settings...
+sudo /Library/Application\ Support/AppleConnect/Uninstall\ AppleConnect.app/Contents/Resources/appleconnectuninstall > /dev/null 2>&1
+wait
+sudo rm -rf /Library/Application\ Support/AppleConnect* > /dev/null 2>&1
 sudo rm -rf /Library/Preferences/com.apple.ist* > /dev/null 2>&1
 sudo rm -rf ~/Library/Preferences/com.apple.ist* > /dev/null 2>&1
 sudo rm -rf ~/Library/Preferences/ByHost/com.apple.ist* > /dev/null 2>&1
 sudo rm -rf /Library/Preferences/com.apple.alf* > /dev/null 2>&1
 echo Clearing iLog Settings...
 sudo rm -rf ~/Library/Application\ Support/ILOG* > /dev/null 2>&1
-sudo rm -rf /Users/workathomeagent/ilog* > /dev/null 2>&1
 sudo rm -rf ~/ilog* > /dev/null 2>&1
 echo Clearing SafeView Settings...
 sudo rm -rf /Library/Application\ Support/SafeView* > /dev/null 2>&1
@@ -108,9 +96,15 @@ sudo rm -rf ~/Library/Application\ Support/ADVoice* > /dev/null 2>&1
 echo Removing Temporary Files...
 sudo rm -rf ~/.temp* > /dev/null 2>&1
 sleep 3
-echo Restoring Safari Bookmarks...
+echo Importing Safari Bookmarks...
 sudo mv ~/Desktop/Bookmarks.plist ~/Library/Safari/
 sleep 1
+echo Set Computer Name...
+NAME=(`security find-certificate -a ~/Library/Keychains/login.keychain | grep -A 1 CONCENTRIX-GVW-P-CA | tail -n 1 | cut -d \" -f4 | tr -d \' | sed 's/\\[0-9]*//g'`)
+DEPT="-AAHA"
+HOST=$NAME$DEPT
+sudo scutil --set ComputerName "$HOST"
+sudo scutil --set HostName "$HOST"
 echo Changing Ownership...
 sudo chown -R root:wheel /Applications/SafeView.app > /dev/null 2>&1
 sudo chown -R root:wheel /Applications/iLog.app > /dev/null 2>&1
@@ -123,15 +117,17 @@ sudo chmod -R 755 /Applications/iLog.app > /dev/null 2>&1
 sudo chmod -R 755 /Applications/AppleConnect.app > /dev/null 2>&1
 sudo chmod -R 755 /Applications/FortiClient.app > /dev/null 2>&1
 sleep 2
-echo Removing Keychains...
-sudo rm -rf /System/Library/Keychains/* > /dev/null 2>&1
-sudo rm -rf /Library/Keychains/* > /dev/null 2>&1
-sudo rm -rf ~/Library/Keychains/* > /dev/null 2>&1
-echo                          
-echo                          
-sudo mv ~/Desktop/importSSL ~/Downloads/ > /dev/null 2>&1
 
+echo                      
+echo Clearing Network Settings...
+sudo rm -rf /Library/Preferences/SystemConfiguration/* > /dev/null 2>&1
+sudo rm -rf /Library/Preferences/com.apple.network* > /dev/null 2>&1
+sudo rm -rf /Library/Preferences/P2P* > /dev/null 2>&1
+sudo rm -rf /System/Library/NetworkServiceProxy/* > /dev/null 2>&1
 
+sudo rm -rf /tmp/*.txt > /dev/null 2>&1
+echo
+echo              
 echo C O M P L E T E D !
 echo                          
 echo    

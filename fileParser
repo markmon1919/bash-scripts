@@ -1,5 +1,12 @@
 #!/bin/bash
 
+#MANUAL:
+# Type <scriptname> <month> <from day> <to day> <year>
+# Type ./fileParser <02> <01> <28> <18>
+# It can only parse files for a single month
+# To parse 2 months, execute script twice then concatenate example:
+# cat ech_output1.txt ech_output2.txt > new_output.txt
+
 declare echFiles=(`ls /Volumes/CHRSPLOGS`)
 declare readFiles=()
 month=$1
@@ -9,6 +16,7 @@ year=$4
 folderTarget=""
 
 for (( i=$from; i<=$to; i++ )); do
+
 	if [[ i -lt 10 ]]; then
 		folderTarget=$month
 		folderTarget+="0"
@@ -18,15 +26,16 @@ for (( i=$from; i<=$to; i++ )); do
 		folderTarget=$month$i$year
 	fi
 
-	readFiles=(`ls /Volumes/CHRSPLOGS/$folderTarget`)
+	readFiles=(`ls /Volumes/CHRSPLOGS/$folderTarget/`)
 
-	for (( a=0; a<${#echFiles[*]}; a++ )); do
+	for (( a=0; a<${#readFiles[*]}; a++ )); do
 		if [[ a -eq 0 ]]; then
-			cat /Volumes/CHRSPLOGS/$folderTarget/${readFiles[$i]} | grep 72200 > ~/Desktop/ech/ech_output$month$from$to$year.txt
+			cat /Volumes/CHRSPLOGS/$folderTarget/${readFiles[$a]} | grep 72200 > ~/Desktop/ech/ech_output$month$from$to$year.txt
 		else
-			cat /Volumes/CHRSPLOGS/$folderTarget/${readFiles[$i]} | grep 72200 >> ~/Desktop/ech/ech_output$month$from$to$year.txt
-			echo /Volumes/CHRSPLOGS/$folderTarget/${readFiles[$i]}
+			cat /Volumes/CHRSPLOGS/$folderTarget/${readFiles[$a]} | grep 72200 >> ~/Desktop/ech/ech_output$month$from$to$year.txt
+			echo /Volumes/CHRSPLOGS/$folderTarget/${readFiles[$a]}
 		fi
 	done
+
 done
 

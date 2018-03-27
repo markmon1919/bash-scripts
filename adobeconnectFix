@@ -1,10 +1,11 @@
 #!/bin/bash
-#Created by Mark Mon Monteros
+#   Created by WAH-IT PHL L2
 #	*** AdobeConnect Fix Script ***
 
 echo "*** AdobeConnect Fix Script ***"
 echo 'Enter your local password: "concentrix"'
 sudo dscacheutil -flushcache
+
 echo Flushing DNS . . .
 
 declare mDNS=(`ps -ax | grep -i mDNSResponder | grep -v ttys | awk '{print$1}'`)
