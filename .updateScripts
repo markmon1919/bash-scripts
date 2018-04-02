@@ -1,0 +1,18 @@
+#!/bin/bash
+
+rm -rf ~/.ssh/known_hosts
+rm -rf /usr/local/bin/updateScripts
+touch /usr/local/bin/updateScripts
+chmod 777 /usr/local/bin/updateScripts
+
+function create() {
+echo '#!/usr/bin/expect -f' >> /usr/local/bin/updateScripts
+
+echo spawn bash -c '"'rsync -avzh ITWAHSC@10.57.136.18:~/Documents/Scripts/compressed/ /Applications/'\'['\'{Scripts'\'}'\']/'"' >> /usr/local/bin/updateScripts
+echo expect '"''('yes/no')'?'"' >> /usr/local/bin/updateScripts
+echo send '"'yes'\'r'"' >> /usr/local/bin/updateScripts
+echo expect '"'assword :'"' >> /usr/local/bin/updateScripts
+echo send '"'concentrix'\'r'"' >> /usr/local/bin/updateScripts
+echo 'interact' >> /usr/local/bin/updateScripts
+}
+create
