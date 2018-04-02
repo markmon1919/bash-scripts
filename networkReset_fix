@@ -2,7 +2,7 @@
 #   Created by WAH-IT PHL L2
 #	*** Network Reset Script ***
 
-echo "*** Network Reset Scripto ***"
+echo "*** Network Reset Script ***"
 echo 'Enter your local password: "concentrix"'
 sudo dscacheutil -flushcache
 echo Flushing DNS . . .
