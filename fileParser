@@ -15,6 +15,7 @@ to=$3
 year=$4
 folderTarget=""
 
+mkdir ~/Desktop/ech/ > /dev/null 2>&1
 touch ~/Desktop/ech/ech_output$month$from$to$year.txt
 
 for (( i=$from; i<=$to; i++ )); do
