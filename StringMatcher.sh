@@ -5,18 +5,17 @@ echo -e "\n+-----------+-----------+"
 echo -e " String Match Automation \n   by Mark Mon Monteros"
 echo -e "+-----------+-----------+\n"
 
+declare generateFile=(`cat ~/Desktop/Supply\ and\ Demand\ Tool.csv | tr " " "_" | awk '{print$1}'`)                     #Match This File
+declare mainSourceCol1=(`cat ~/Desktop/mainSource.csv | tr "," "$" | tr " " "_" | tr "$" " " | awk '{print$1}'`)        #Main Source File Column-1
+declare mainSourceCol2=(`cat ~/Desktop/mainSource.csv | tr "," "$" | tr " " "_" | tr "$" " " | awk '{print$2}'`)        #Main Source File Column-2
+echo "${generateFile[0]}, ${mainSourceCol2[0]}" > ~/Desktop/draft.csv
 
-declare mainSource=(`cat ~/Desktop/mainSource.csv | tr " " "_" | awk '{print$1}'`)      #Main Source File
-declare getFile1Col1=(`cat ~/Desktop/file.csv | tr " " "_" | awk '{print$1}'`)          #File Match Column-1
-declare getFile1Col2=(`cat ~/Desktop/file.csv | tr " " "_" | awk '{print$2}'`)          #File Match Column-2
-echo "${mainSource[0]}, ${getFile1Col2[0]}" > ~/Desktop/draft.csv
-
-for (( i=1; i<${#mainSource[*]}; i++ )); do
+for (( i=1; i<${#generateFile[*]}; i++ )); do
         count=i;
         if [[ i -eq $count ]]; then
-                for (( j=1; j<${#getFile1Col2[*]}; j++ )); do
-                        if [[ ${mainSource[$count]} == ${getFile1Col2[j]} ]]; then
-                                echo "${mainSource[i]}, ${getFile1Col1[j]}" >> ~/Desktop/draft.csv
+                for (( j=1; j<${#mainSourceCol1[*]}; j++ )); do
+                        if [[ ${generateFile[$count]} == ${mainSourceCol1[j]} ]]; then
+                                echo "${generateFile[i]}, ${mainSourceCol2[j]}" >> ~/Desktop/draft.csv
                         fi
                 done
         fi
