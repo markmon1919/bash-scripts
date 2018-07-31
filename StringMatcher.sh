@@ -31,15 +31,11 @@ declare mainSourceCol2=(`cat ~/Desktop/demand-upsert05042018.csv | grep weeks | 
 echo "${matchFile[0]},Assigned Role" > ~/Desktop/draft.csv              #USING DEMAND-UPSERT SOURCE
 
 for (( i=1; i<${#matchFile[*]}; i++ )); do
-        count=i;
-        if [[ i -eq $count ]]; then
-                for (( j=1; j<${#mainSourceCol1[*]}; j++ )); do
-                        if [[ ${matchFile[$count]} == ${mainSourceCol1[j]} ]]; then
-                                echo "${matchFile[i]},${mainSourceCol2[j]}" >> ~/Desktop/draft.csv
-                        fi
-                done
-        fi
-        count+=1;
+        for (( j=0; j<${#mainSourceCol1[*]}; j++ )); do
+                if [[ ${matchFile[i]} == ${mainSourceCol1[j]} ]]; then
+                        echo "${matchFile[i]},${mainSourceCol2[j]}" >> ~/Desktop/draft.csv
+                fi
+        done
 done
 
 echo -e "\nEnter filename for output file: "
